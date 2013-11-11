@@ -1,0 +1,392 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_alignParentBottom="true"
+    android:clickable="true"
+    android:background="#EEE" xmlns:tools="http://schemas.android.com/tools">
+    
+    <RelativeLayout
+        android:id="@+id/slider_layMenu"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_centerInParent="true"
+	    android:layout_alignParentTop="true">
+
+        <RelativeLayout
+	        android:id="@+id/edit_field_layTitle"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_centerInParent="true"
+		    android:layout_alignParentTop="true">
+		    <TextView
+		        android:id="@+id/edit_field_tvName"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentTop="true"
+		        android:layout_marginRight="10dp"
+		        android:textStyle="bold"
+		        android:textSize="20sp"
+		        android:text="Field 4" 
+		        />
+		    <TextView 
+		        android:id="@+id/edit_field_tvAcres"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentTop="true"
+		        android:layout_toRightOf="@+id/edit_field_tvName"
+		        android:layout_marginRight="5dp"
+		        android:textSize="20sp"
+		        android:text="84"
+		        />
+		    <TextView 
+		        android:id="@+id/edit_field_label_acres"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentTop="true"
+		        android:layout_toRightOf="@+id/edit_field_tvAcres"
+		        android:textSize="20sp"
+		        android:text="acres"
+		        />
+		    <ImageButton 
+				android:id="@+id/edit_field_butEditField"
+				android:layout_width="32dp"
+				android:layout_height="32dp"
+			    android:layout_alignParentTop="true"
+				android:layout_toRightOf="@+id/edit_field_label_acres"
+				android:layout_marginLeft="5dp"
+				android:background="@drawable/edit"
+				/>
+		</RelativeLayout>
+
+	    <RelativeLayout
+	        android:id="@+id/edit_field_layStatus"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_centerInParent="true"
+		    android:gravity="center"
+		    android:layout_below="@+id/edit_field_layTitle"
+		    android:layout_marginRight="10dp">
+		    <RelativeLayout
+		        android:id="@+id/edit_field_layInfo1"
+		        android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_alignParentLeft="true">
+
+
+				<TextView
+				    android:id="@+id/edit_field_tvCalendar"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+				    android:layout_alignParentLeft="true"
+				    android:layout_centerVertical="true"
+				    android:text="Today"
+				    android:textSize="14sp" />
+
+				<ImageButton
+				    android:id="@+id/edit_field_butCalendar"
+				    android:layout_width="32dp"
+				    android:layout_height="32dp"
+				    android:layout_centerVertical="true"
+				    android:layout_alignParentTop="true"
+				    android:layout_toRightOf="@+id/edit_field_tvCalendar"
+				    android:background="@drawable/calendar" />
+
+			</RelativeLayout>
+
+	        <RelativeLayout
+		        android:id="@+id/edit_field_layStatusPlanned"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_toRightOf="@+id/edit_field_layInfo1"
+			    android:layout_marginRight="10dp"
+				android:layout_marginLeft="8dp">
+			    <CheckBox 
+			    	android:id="@+id/edit_field_chkPlanned"
+			        android:layout_width="wrap_content"
+			    	android:layout_height="wrap_content"
+			    	android:layout_alignParentTop="true"
+			    	android:layout_centerInParent="true"
+			    	android:button="@drawable/checkbox_planned"
+			        />
+		    </RelativeLayout>
+		    <RelativeLayout
+		        android:id="@+id/edit_field_layStatusStarted"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_toRightOf="@+id/edit_field_layStatusPlanned"
+			    android:layout_marginRight="10dp">
+			    <CheckBox 
+			    	android:id="@+id/edit_field_chkStarted"
+			        android:layout_width="wrap_content"
+			    	android:layout_height="wrap_content"
+			    	android:layout_alignParentTop="true"
+			    	android:layout_centerInParent="true"
+			    	android:button="@drawable/checkbox_started"
+			        />
+		    </RelativeLayout>
+		    <RelativeLayout
+		        android:id="@+id/edit_field_layStatusDone"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_toRightOf="@+id/edit_field_layStatusStarted"
+			    android:layout_marginRight="10dp">
+
+			    <CheckBox
+			        android:id="@+id/edit_field_chkDone"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_alignParentTop="true"
+			        android:button="@drawable/checkbox_done" />
+
+		    </RelativeLayout>
+
+	        <RelativeLayout
+	            android:id="@+id/edit_field_calSpinner"
+	            android:layout_width="130dp"
+	            android:layout_height="wrap_content"
+	            android:layout_alignBottom="@+id/edit_field_layStatusDone"
+	            android:layout_toRightOf="@+id/edit_field_layStatusDone" >
+			    <Spinner
+			        android:id="@+id/edit_field_spinOperator"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:background="@android:drawable/btn_dropdown"
+			        android:padding="0dp"
+			        android:textSize="14sp"
+			        android:layout_centerVertical="true"
+			        android:visibility="gone"
+			        tools:listitem="@android:layout/simple_spinner_item" />
+			    <Button 
+				    android:id="@+id/edit_field_butNewOperator"	
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_centerVertical="true"
+					android:textSize="13.5sp"
+					android:visibility="visible"
+					android:text="Operator"
+					android:singleLine="true"					
+					android:background="@android:drawable/btn_dropdown"/>
+	    	</RelativeLayout>
+	    </RelativeLayout>
+<!--  <<<<<<< HEAD-->
+
+   <RelativeLayout
+       android:id="@+id/seperator"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_below="@+id/edit_field_layStatus"
+       android:layout_centerHorizontal="true"
+       android:layout_marginTop="5dp" >
+
+       <View
+           android:id="@+id/view1"
+           android:layout_width="fill_parent"
+           android:layout_height="1dp"
+           android:background="@android:color/black" />
+
+   </RelativeLayout>
+
+    <RelativeLayout
+    	android:id="@+id/planter_setup"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="10dp"
+    	android:layout_below="@+id/edit_field_layStatus"
+    	android:layout_centerHorizontal="true">  
+	    <TextView
+        	android:id="@+id/Planter_Setup"
+        	android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:layout_centerVertical="true"
+        	android:text="Planter Setup"/>
+	    <Button
+	        android:id="@+id/Addseed"
+	        android:layout_width="130dp"
+	        android:layout_height="32dp"
+	        android:layout_toRightOf="@+id/Planter_Setup"
+	        android:layout_centerVertical="true"
+	        android:layout_marginLeft="20dp"
+	        android:textSize="14sp"
+	        android:text="Add seed variety" />
+ 
+    </RelativeLayout>    
+<!-- =======-->
+   
+<!--   >>>>>>> refs/remotes/origin/master-->
+    <ScrollView
+        android:id="@+id/slider_scrollView"
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp"
+	    android:layout_below="@+id/edit_field_layStatus"
+	    android:background="#EEE">
+
+		<LinearLayout
+		    android:id="@+id/slider_listNotes"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:orientation="vertical" >
+
+		    <View
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dp"
+		        android:background="@android:color/black" />
+
+		    <RelativeLayout
+		        android:id="@+id/sample_seedVar"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="10dp"
+		        android:layout_weight="0.68" >
+
+		        <ImageButton
+		           android:id="@+id/butCamera"
+		           android:layout_width="100dp"
+		           android:layout_height="40dp"
+		           android:layout_centerVertical="true"
+		           android:background="@drawable/ic_launcher" />
+
+		        <RelativeLayout
+		            android:id="@+id/Seed_Var_Info"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerHorizontal="true"
+		            android:layout_toRightOf="@+id/butCamera" >
+
+		            <Button
+		                android:id="@+id/Seed_VarSelection"
+		                android:layout_width="wrap_content"
+		                android:layout_height="32dp"
+		                android:text="Select seed variety"
+		                android:textSize="14sp" />
+
+		            <EditText
+		                android:id="@+id/Seed_Note"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:layout_alignRight="@+id/Seed_VarSelection"
+		                android:layout_alignLeft="@+id/Seed_VarSelection"
+		                android:layout_below="@+id/Seed_VarSelection"
+		                android:hint="Seed Notes"
+		                android:textSize="14sp" />
+		        </RelativeLayout>
+
+		        <Button
+		            android:id="@+id/Addnote"
+		            android:layout_width="70dp"
+		            android:layout_height="32dp"
+		            android:layout_centerVertical="true"
+		            android:layout_toRightOf="@+id/Seed_Var_Info"
+		            android:text="Add"
+		            android:textSize="14sp" />
+		    </RelativeLayout>
+
+		    <View
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dp"
+		        android:background="@android:color/black" />
+
+		    <RelativeLayout
+		        android:id="@+id/sample_Note1"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="10dp" >
+
+		        <EditText
+		            android:id="@+id/edit_note_name1"
+		            android:layout_width="100dp"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:hint="Note"
+		            android:textSize="14sp" />
+
+		        <TextView
+		            android:id="@+id/Note_Context1"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:layout_toRightOf="@+id/edit_note_name1"
+		            android:text=":" />
+
+		        <EditText
+		            android:id="@+id/edit_note_context1"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:layout_toRightOf="@+id/Note_Context1"
+		            android:hint="Write note"
+		            android:textSize="14sp" />
+		    </RelativeLayout>
+
+		    <RelativeLayout
+		        android:id="@+id/sample_Note2"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="10dp" >
+
+		        <EditText
+		            android:id="@+id/edit_note_name2"
+		            android:layout_width="100dp"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:hint="Note"
+		            android:textSize="14sp" />
+
+		        <TextView
+		            android:id="@+id/Note_Context2"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:layout_toRightOf="@+id/edit_note_name2"
+		            android:text=":" />
+
+		        <EditText
+		            android:id="@+id/edit_note_context2"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:layout_toRightOf="@+id/Note_Context2"
+		            android:hint="Write note"
+		            android:textSize="14sp" />
+		    </RelativeLayout>
+		</LinearLayout>
+  
+    </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/edit_field_layInfo3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/slider_scrollView">
+
+        <ImageButton
+            android:id="@+id/edit_field_butDone"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/check_ok" />
+
+        <ImageButton
+            android:id="@+id/edit_field_butDelete"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/trash" />
+
+        <EditText
+            android:id="@+id/edit_field_etComment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@+id/edit_field_butDelete"
+            android:layout_toRightOf="@+id/edit_field_butDone"
+            android:hint="Comment"
+            android:textSize="14sp" />
+    </RelativeLayout>
+   </RelativeLayout>
+
+</RelativeLayout>
