@@ -20,6 +20,8 @@ import com.openatk.planting.db.TableFields;
 import com.openatk.planting.db.TableJobs;
 import com.openatk.planting.db.TableOperations;
 import com.openatk.planting.db.TableWorkers;
+import com.openatk.planting.db.TableSeed;
+import com.openatk.planting.db.Seed;
 import com.openatk.planting.db.Worker;
 
 import android.content.ContentValues;
@@ -83,6 +85,7 @@ public class SyncController implements ISyncController {
 		database.delete(TableJobs.TABLE_NAME, null, null);
 		database.delete(TableOperations.TABLE_NAME, null, null);
 		database.delete(TableWorkers.TABLE_NAME, null, null);
+		database.delete(TableSeed.TABLE_NAME, null, null);
 		database.delete(TableFields.TABLE_NAME, null, null);
 		dbHelper.close();
 		
@@ -113,10 +116,14 @@ public class SyncController implements ISyncController {
 			database.update(TableFields.TABLE_NAME, values, null, null);
 			
 			ContentValues values2 = new ContentValues();
-			values.put(TableWorkers.COL_REMOTE_ID, "");
+			values2.put(TableWorkers.COL_REMOTE_ID, "");
 			values2.put(TableWorkers.COL_HAS_CHANGED, 1);
-			database.update(TableWorkers.TABLE_NAME, values, null, null);
+			database.update(TableWorkers.TABLE_NAME, values2, null, null);
 			
+			ContentValues values3 = new ContentValues();
+			values3.put(TableSeed.COL_REMOTE_ID, "");
+			values3.put(TableSeed.COL_HAS_CHANGED, 1);
+			database.update(TableSeed.TABLE_NAME, values3, null, null);
 			dbHelper.close();
 			
 			updateOperations = true; //Reload operations
@@ -143,10 +150,14 @@ public class SyncController implements ISyncController {
 			database.update(TableFields.TABLE_NAME, values, null, null);
 			
 			ContentValues values2 = new ContentValues();
-			values.put(TableWorkers.COL_REMOTE_ID, "");
+			values2.put(TableWorkers.COL_REMOTE_ID, "");
 			values2.put(TableWorkers.COL_HAS_CHANGED, 1);
-			database.update(TableWorkers.TABLE_NAME, values, null, null);
+			database.update(TableWorkers.TABLE_NAME, values2, null, null);
 			
+			ContentValues values3 = new ContentValues();
+			values3.put(TableSeed.COL_REMOTE_ID, "");
+			values3.put(TableSeed.COL_HAS_CHANGED, 1);
+			database.update(TableSeed.TABLE_NAME, values3, null, null);
 			dbHelper.close();
 			
 			updateOperations = true; //Reload operations
@@ -952,6 +963,7 @@ public class SyncController implements ISyncController {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppContext);
 		String boardId = prefs.getString("BoardId", "");
 		MyBoard board = new MyBoard(boardId, "", "OpenATK - PlantingApp", "", false, false);
+
 		boardList.add(board);
 		
 		return boardList;

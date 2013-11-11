@@ -18,13 +18,15 @@ public class TableJobs {
 	public static final String COL_FUEL_USED = "fuel_used";
 	public static final String COL_STATUS = "status";
 	public static final String COL_COMMENTS = "comments";
+	public static final String COL_SEEDNOTES = "seednotes";
+	public static final String COL_SEED_NAME = "seed_name";
 	public static final String COL_DELETED = "deleted";
 
 
 	public static String[] COLUMNS = { COL_ID, COL_REMOTE_ID, COL_HAS_CHANGED, 
 		COL_DATE_CHANGED, COL_OPERATION_ID, COL_DATE_OF_OPERATION, 
 		COL_WORKER_NAME, COL_FIELD_NAME, COL_DURATION, 
-		COL_FUEL_USED, COL_STATUS, COL_COMMENTS, COL_DELETED };
+		COL_FUEL_USED, COL_STATUS, COL_COMMENTS, COL_SEEDNOTES, COL_SEED_NAME, COL_DELETED };
 
 	// Database creation SQL statement
 	private static final String DATABASE_CREATE = "create table " 
@@ -42,6 +44,8 @@ public class TableJobs {
 	      + COL_FUEL_USED + " real,"
 	      + COL_STATUS + " integer,"
 	      + COL_COMMENTS + " text,"
+	      + COL_SEEDNOTES + " text,"
+	      + COL_SEED_NAME + " text,"
 	      + COL_DELETED + " integer default 0"
 	      + ");";
 

@@ -17,14 +17,15 @@ public class Job {
 	private Integer operationId = 0;
 	private String dateOfOperation = null;
 	private String workerName = "";
+	private String seedName = "";
 
 	private String fieldName = "";
 	private Integer duration = 0;
 	private Float fuelUsed = 0.0f;
 	private Integer status = STATUS_NOT_PLANNED;
 	private String comments = "";
+	private String seednotes = "";
 	private Integer deleted = 0;
-
 
 	public Job(){
 		
@@ -68,6 +69,10 @@ public class Job {
 		return workerName;
 	}
 	
+	public String getSeedName() {
+		return seedName;
+	}
+	
 	public String getFieldName() {
 		return fieldName;
 	}
@@ -89,6 +94,10 @@ public class Job {
 
 	public String getComments() {
 		return comments;
+	}
+	
+	public String getSeednotes() {
+		return seednotes;
 	}
 	
 	public int getDeleted(){
@@ -130,10 +139,13 @@ public class Job {
 		this.workerName = workerName;
 	}
 	
+	public void setSeedName(String seedName) {
+		this.seedName = seedName;
+	}
+	
 	public void setFieldName(String fieldName) {
 		this.fieldName = fieldName;
 	}
-
 
 	public void setDuration(Integer duration) {
 		this.duration = duration;
@@ -154,6 +166,10 @@ public class Job {
 		this.comments = comments;
 	}
 	
+	public void setSeednotes(String seednotes) {
+		this.seednotes = seednotes;
+	}
+	
 	public void setDeleted(int deleted){
 		this.deleted = deleted;
 	}
@@ -168,11 +184,13 @@ public class Job {
 			job.setOperationId(cursor.getInt(cursor.getColumnIndex(TableJobs.COL_OPERATION_ID)));
 			job.setDateOfOperation(cursor.getString(cursor.getColumnIndex(TableJobs.COL_DATE_OF_OPERATION)));
 			job.setWorkerName(cursor.getString(cursor.getColumnIndex(TableJobs.COL_WORKER_NAME)));
+			job.setSeedName(cursor.getString(cursor.getColumnIndex(TableJobs.COL_SEED_NAME)));
 			job.setFieldName(cursor.getString(cursor.getColumnIndex(TableJobs.COL_FIELD_NAME)));
 			job.setDuration(cursor.getInt(cursor.getColumnIndex(TableJobs.COL_DURATION)));
 			job.setFuelUsed(cursor.getFloat(cursor.getColumnIndex(TableJobs.COL_FUEL_USED)));
 			job.setStatus(cursor.getInt(cursor.getColumnIndex(TableJobs.COL_STATUS)));
 			job.setComments(cursor.getString(cursor.getColumnIndex(TableJobs.COL_COMMENTS)));
+			job.setSeednotes(cursor.getString(cursor.getColumnIndex(TableJobs.COL_SEEDNOTES)));
 			job.setDeleted(cursor.getInt(cursor.getColumnIndex(TableJobs.COL_DELETED)));
 			return job;
 		} else {

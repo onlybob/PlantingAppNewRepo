@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.view.inputmethod.InputMethodManager;
@@ -69,6 +70,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.openatk.libcommon.rock.Rock;
 import com.openatk.libtrello.TrelloController;
+import com.openatk.planting.R;
 import com.openatk.planting.FragmentAddField.AddFieldListener;
 import com.openatk.planting.FragmentEditJobPopup.EditJobListener;
 import com.openatk.planting.FragmentListView.ListViewListener;
@@ -129,6 +131,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
     SyncController syncController;
     TrelloController trelloController;
     
+    SupportMapFragment fragMap = null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -137,20 +140,22 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 		dbHelper = new DatabaseHelper(this);
 		
 		FragmentManager fm = getSupportFragmentManager();
-		SupportMapFragment f = (SupportMapFragment) fm
+		fragMap = (SupportMapFragment) fm
 				.findFragmentById(R.id.map);
 
+		fragmentEditField = (FragmentEditJobPopup) fm.findFragmentByTag("edit_job");
+		
 		if (savedInstanceState == null) {
 			// First incarnation of this activity.
-			f.setRetainInstance(true);
+			fragMap.setRetainInstance(true);
 		} else {
 			// Reincarnated activity. The obtained map is the same map instance
 			// in the previous
 			// activity life cycle. There is no need to reinitialize it.
-			map = f.getMap();
+			map = fragMap.getMap();
 		}
 		checkGPS();
-
+		
 		actionBar = getActionBar();
 		// Specify that a dropdown list should be displayed in the action bar.
 		// actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
@@ -262,9 +267,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 				trelloController.sync();
 			}
 		}
+		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 	}
-	
-	
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -278,8 +282,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 	        }
 		 }		
 	}
-
-
 
 
 	@Override
@@ -1272,6 +1274,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 			SQLiteDatabase database = dbHelper.getWritableDatabase();
 			ContentValues values = new ContentValues();
 			values.put(TableJobs.COL_WORKER_NAME, job.getWorkerName());
+			values.put(TableJobs.COL_SEED_NAME, job.getSeedName());
+			
 			if(currentField == null){
 				values.put(TableJobs.COL_FIELD_NAME, currentJob.getFieldName());
 			} else {
@@ -1279,8 +1283,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 			}
 			values.put(TableJobs.COL_STATUS, job.getStatus());
 			values.put(TableJobs.COL_COMMENTS, job.getComments());
-			values.put(TableJobs.COL_DATE_OF_OPERATION,
-					job.getDateOfOperation());
+			values.put(TableJobs.COL_SEEDNOTES, job.getSeednotes());
+			values.put(TableJobs.COL_DATE_OF_OPERATION,job.getDateOfOperation());
 			values.put(TableJobs.COL_HAS_CHANGED, job.getHasChanged());
 			values.put(TableJobs.COL_DATE_CHANGED, job.getDateChanged());
 			values.put(TableJobs.COL_OPERATION_ID, currentOperationId);
@@ -1295,6 +1299,14 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 							.getDefaultSharedPreferences(getApplicationContext());
 					SharedPreferences.Editor editor = prefs.edit();
 					editor.putString("WorkerName", job.getWorkerName());
+					editor.commit();
+				}
+				if (job.getSeedName().isEmpty() == false) {
+					// Save this choice in preferences for next open
+					SharedPreferences prefs = PreferenceManager
+							.getDefaultSharedPreferences(getApplicationContext());
+					SharedPreferences.Editor editor = prefs.edit();
+					editor.putString("SeedName", job.getSeedName());
 					editor.commit();
 				}
 				Log.d("MainActivity - EditJobSave",
@@ -1812,6 +1824,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 		}
 		//Find end height
 		if(fragmentEditField != null){
+			Log.d("slider","not null");
 			ScrollView sv = (ScrollView) fragmentEditField.getView().findViewById(R.id.slider_scrollView);
 			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) sv.getLayoutParams();
 			if(params.height > sliderHeightStart){
@@ -1821,6 +1834,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 				//Make smaller
 				SliderShrink();
 			}
+		} else {
+			Log.d("slider","null");
 		}
 	}
 	
@@ -1843,12 +1858,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 			} else if(sliderPosition == 2){
 				//Fullscreen -> Middle if has notes
 				//Fullscreen -> Small if no notes
-				if(false){//TODO: if notes, go to sliderPosition = 1
+				if(false){
 					DropDownAnim an = new DropDownAnim(sv, params.height, oneThirdHeight);
 					an.setDuration(300);
 					sv.startAnimation(an);
 					sliderPosition = 1;
-				} else {//TODO: if notes gone, go to sliderPosition = 0
+				} else {
 					DropDownAnim an = new DropDownAnim(sv, params.height, 0);
 					an.setDuration(300);
 					sv.startAnimation(an);
@@ -1871,6 +1886,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 		}
 		if(fragmentEditField != null){
 			RelativeLayout relAdd = (RelativeLayout) fragmentEditField.getView().findViewById(R.id.slider_layMenu);
+			RelativeLayout relBottomBar = (RelativeLayout) fragmentEditField.getView().findViewById(R.id.edit_field_layInfo3);
 			Log.d("layMenu:", Integer.toString(relAdd.getHeight()));
 			ScrollView sv = (ScrollView) fragmentEditField.getView().findViewById(R.id.slider_scrollView);
 			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) sv.getLayoutParams();
@@ -1882,8 +1898,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 				sliderPosition = 1;
 			} else if(sliderPosition == 1){
 				//Middle -> Fullscreen
-				DropDownAnim an = new DropDownAnim(sv, params.height, (size.y - relAdd.getHeight() - actionBarHeight));
-				Log.d("fullslider","Full slider");
+				DropDownAnim an = new DropDownAnim(sv, params.height, (fragMap.getView().getHeight() - relAdd.getHeight() - relBottomBar.getHeight()));
+				Log.d("fullslider","Full slider"+Integer.toString(relBottomBar.getHeight()));
+			
 				an.setDuration(300);
 				sv.startAnimation(an);
 				sliderPosition = 2;

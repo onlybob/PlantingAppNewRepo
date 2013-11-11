@@ -8,6 +8,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.openatk.planting.R;
+import com.openatk.planting.db.DatabaseHelper;
+import com.openatk.planting.db.Field;
+import com.openatk.planting.db.Job;
+import com.openatk.planting.db.Seed;
+import com.openatk.planting.db.TableOperations;
+import com.openatk.planting.db.TableWorkers;
+import com.openatk.planting.db.TableSeed;
+import com.openatk.planting.db.Worker;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -46,16 +56,8 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.openatk.planting.db.DatabaseHelper;
-import com.openatk.planting.db.Field;
-import com.openatk.planting.db.Job;
-import com.openatk.planting.db.TableOperations;
-import com.openatk.planting.db.TableWorkers;
-import com.openatk.planting.db.Worker;
-
 public class FragmentEditJobPopup extends Fragment implements
-		OnCheckedChangeListener, OnClickListener, OnItemSelectedListener,
-		OnTouchListener {
+		OnCheckedChangeListener, OnClickListener, OnItemSelectedListener, OnTouchListener {
 
 	EditJobListener listener;
 	private Field currentField = null;
@@ -72,18 +74,25 @@ public class FragmentEditJobPopup extends Fragment implements
 
 	private TextView tvCalendar;
 	private ImageButton butCalendar;
-
-	private ImageView butCamera;
-
 	private DatabaseHelper dbHelper;
 	private List<Worker> workerList = null;
+	private List<Seed> seedList = null;
 	private ArrayAdapter<Worker> spinWorkerAdapter = null;
 	private Spinner spinWorker;
 	private Button butNewWorker;
+	private ArrayAdapter<Seed> spinSeedAdapter = null;
+	private Spinner spinSeed;
+	private Button butNewSeed;
 
 	private ImageButton butDone;
 	private EditText etComment;
+	private EditText etSeednote;
+	//private EditText fieldnote1; //field note title 1
+	//private EditText fieldnoteCon1; //field note content 1
+	//private EditText fieldnote2;  //field note title 2
+	//private EditText fieldnoteCon2; //field note content 2
 	private ImageButton butDelete;
+	private ImageView butCamera;
 
 	// Interface for receiving data
 	public interface EditJobListener {
@@ -100,11 +109,9 @@ public class FragmentEditJobPopup extends Fragment implements
 		public void EditJobDateSave(int year, int month, int day);
 
 		public void EditJobEditField();
-
+		
 		public void SliderDragDown(int start);
-
 		public void SliderDragDragging(int whereY);
-
 		public void SliderDragUp(int whereY);
 	}
 
@@ -121,10 +128,11 @@ public class FragmentEditJobPopup extends Fragment implements
 		butEditField = (ImageButton) view
 				.findViewById(R.id.edit_field_butEditField);
 
+
 		view.setOnTouchListener(this);
 		tvName.setOnTouchListener(this);
 		tvAcres.setOnTouchListener(this);
-
+		
 		chkPlanned = (CheckBox) view.findViewById(R.id.edit_field_chkPlanned);
 		chkStarted = (CheckBox) view.findViewById(R.id.edit_field_chkStarted);
 		chkDone = (CheckBox) view.findViewById(R.id.edit_field_chkDone);
@@ -133,10 +141,15 @@ public class FragmentEditJobPopup extends Fragment implements
 		butCalendar = (ImageButton) view
 				.findViewById(R.id.edit_field_butCalendar);
 		butCamera = (ImageView) view.findViewById(R.id.butCamera);
+
 		spinWorker = (Spinner) view.findViewById(R.id.edit_field_spinOperator);
 		butNewWorker = (Button) view
 				.findViewById(R.id.edit_field_butNewOperator);
-
+		spinSeed = (Spinner) view.findViewById(R.id.edit_field_spinSeed);
+		butNewSeed = (Button) view
+				.findViewById(R.id.edit_field_butNewSeed);
+		etSeednote = (EditText) view.findViewById(R.id.Seed_Note);
+		
 		butDone = (ImageButton) view.findViewById(R.id.edit_field_butDone);
 		etComment = (EditText) view.findViewById(R.id.edit_field_etComment);
 		butDelete = (ImageButton) view.findViewById(R.id.edit_field_butDelete);
@@ -160,6 +173,18 @@ public class FragmentEditJobPopup extends Fragment implements
 		spinWorker.setAdapter(spinWorkerAdapter);
 		butNewWorker.setOnClickListener(this);
 
+		loadSeedList();
+		spinSeed.setOnItemSelectedListener(this);
+		spinSeedAdapter = new ArrayAdapter<Seed>(this.getActivity(),
+				R.layout.seed_textview,R.id.SeedListLine, seedList);
+		spinSeed.setAdapter(spinSeedAdapter);
+		butNewSeed.setOnClickListener(this);
+		
+		etSeednote.addTextChangedListener(new MyTextWatcher(etSeednote));
+		//fieldnote1.addTextChangedListener(new MyTextWatcher(fieldnote1));
+		//fieldnoteCon1.addTextChangedListener(new MyTextWatcher(fieldnoteCon1));
+		//fieldnote2.addTextChangedListener(new MyTextWatcher(fieldnote2));
+		//fieldnoteCon2.addTextChangedListener(new MyTextWatcher(fieldnoteCon2));
 		return view;
 	}
 
@@ -175,6 +200,12 @@ public class FragmentEditJobPopup extends Fragment implements
 					.getString("EditJobWorkerName"));
 			currentJob.setComments(savedInstanceState
 					.getString("EditJobComments"));
+			currentJob.setSeedName(savedInstanceState
+					.getString("EditJobSeedName"));
+			currentJob.setComments(savedInstanceState
+					.getString("EditJobComments"));
+			currentJob.setSeednotes(savedInstanceState
+					.getString("EditJobSeednotes"));
 			currentJob.setDateOfOperation(savedInstanceState
 					.getString("EditJobDateOfOperation"));
 		}
@@ -187,7 +218,9 @@ public class FragmentEditJobPopup extends Fragment implements
 		if (currentJob != null)
 			outState.putString("EditJobWorkerName", currentJob.getWorkerName());
 		if (currentJob != null)
+			outState.putString("EditJobSeedName", currentJob.getSeedName());
 			outState.putString("EditJobComments", currentJob.getComments());
+			outState.putString("EditJobSeednotes", currentJob.getSeednotes());
 		if (currentJob != null)
 			outState.putString("EditJobDateOfOperation",
 					currentJob.getDateOfOperation());
@@ -202,15 +235,13 @@ public class FragmentEditJobPopup extends Fragment implements
 		if (currentField != null) {
 			tvAcres.setVisibility(View.VISIBLE);
 			butEditField.setVisibility(View.VISIBLE);
-			if (currentField.getName().length() != 0)
-				tvName.setText(currentField.getName());
+			if (currentField.getName().length() != 0) tvName.setText(currentField.getName());
 			tvAcres.setText(Integer.toString(currentField.getAcres()));
 		} else {
-			Log.d("FragmentEditJobPopup - getData",
-					"ERROR - current field is null from activity");
-			if (currentJob != null) {
-				// Deleted field but it is still a job, disable field edit and
-				// acres
+			Log.d("FragmentEditJobPopup - getData","ERROR - current field is null from activity");
+			if(currentJob != null){
+				//Deleted field but it is still a job, disable field edit and acres
+				Log.d("FragmentEditJobPopup - getData", "ERROR - current field is null from activity");
 				tvName.setText(currentJob.getFieldName());
 				tvAcres.setVisibility(View.GONE);
 				butEditField.setVisibility(View.GONE);
@@ -218,7 +249,7 @@ public class FragmentEditJobPopup extends Fragment implements
 		}
 
 		loadWorkerList();
-
+		loadSeedList();
 		chkPlanned.setOnCheckedChangeListener(null);
 		chkStarted.setOnCheckedChangeListener(null);
 		chkDone.setOnCheckedChangeListener(null);
@@ -238,37 +269,31 @@ public class FragmentEditJobPopup extends Fragment implements
 			// Spinner
 			selectWorkerInSpinner(currentJob.getWorkerName());
 			etComment.setText(currentJob.getComments());
-
-			Date d = DatabaseHelper.stringToDateLocal(currentJob
-					.getDateOfOperation());
+			selectSeedInSpinner(currentJob.getSeedName());
+			etComment.setText(currentJob.getComments());
+			etSeednote.setText(currentJob.getSeednotes());
+			Date d = DatabaseHelper.stringToDateLocal(currentJob.getDateOfOperation());
 			if (dateIsToday(d)) {
 				tvCalendar.setText("Today");
 			} else {
-				SimpleDateFormat displayFormat = new SimpleDateFormat(
-						"MMM, dd", Locale.US);
+				SimpleDateFormat displayFormat = new SimpleDateFormat("MMM, dd", Locale.US);
 				tvCalendar.setText(displayFormat.format(d));
 			}
-		} else if (currentField != null) {
+		} else if(currentField != null) {
 			// New Job
 			chkPlanned.setChecked(false);
 			chkDone.setChecked(false);
 			chkStarted.setChecked(false);
-			Log.d("FragmentEditJobPopup - getData",
-					"Making new job, currentJob is null");
+			Log.d("FragmentEditJobPopup - getData","Making new job, currentJob is null");
 			currentJob = new Job(currentField.getName());
-			SharedPreferences prefs = PreferenceManager
-					.getDefaultSharedPreferences(this.getActivity()
-							.getApplicationContext());
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.getActivity().getApplicationContext());
 			currentJob.setWorkerName(prefs.getString("WorkerName", ""));
 			// set dateChanged and dateOfOperation to Now
-			currentJob.setDateOfOperation(DatabaseHelper
-					.dateToStringLocal(new Date()));
-			currentJob.setDateChanged(DatabaseHelper
-					.dateToStringUTC(new Date()));
+
+			currentJob.setSeedName(prefs.getString("SeedName", ""));
+			currentJob.setDateOfOperation(DatabaseHelper.dateToStringLocal(new Date()));
+			currentJob.setDateChanged(DatabaseHelper.dateToStringUTC(new Date()));
 		}
-		chkPlanned.setOnCheckedChangeListener(this);
-		chkStarted.setOnCheckedChangeListener(this);
-		chkDone.setOnCheckedChangeListener(this);
 	}
 
 	public void refreshData() {
@@ -343,6 +368,7 @@ public class FragmentEditJobPopup extends Fragment implements
 		return mediaFile;
 	}
 */
+
 	@Override
 	public void onClick(View v) {
 		if (v.getId() == R.id.edit_field_butDone) {
@@ -390,12 +416,18 @@ public class FragmentEditJobPopup extends Fragment implements
 			Log.d("SentIntent", "SentCamera Intent");
 		    Intent cameraIntent=new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 		    this.getActivity().startActivityForResult(cameraIntent, 100);
+		} else if (v.getId() == R.id.edit_field_butNewSeed) {
+			// Create new worker
+			createSeed();
+		} else if (v.getId() == R.id.edit_field_butEditField) {
+			listener.EditJobEditField();
 		}
 	}
 	
 	public void changeCameraIcon(Bitmap bitmap){
 		this.butCamera.setImageBitmap(bitmap);
 	}
+		
 
 	public void flushChangesAndSave(Boolean changeState, Boolean unselect) {
 		flush();
@@ -423,22 +455,22 @@ public class FragmentEditJobPopup extends Fragment implements
 			if (isChecked) {
 				Boolean changed = false;
 				if (buttonView.getId() == R.id.edit_field_chkPlanned) {
-					if (currentJob.getStatus() != Job.STATUS_PLANNED) {
+					if(currentJob.getStatus() != Job.STATUS_PLANNED){
 						changed = true;
 						currentJob.setStatus(Job.STATUS_PLANNED);
 					}
 				} else if (buttonView.getId() == R.id.edit_field_chkStarted) {
-					if (currentJob.getStatus() != Job.STATUS_STARTED) {
+					if(currentJob.getStatus() != Job.STATUS_STARTED){
 						changed = true;
 						currentJob.setStatus(Job.STATUS_STARTED);
 					}
 				} else if (buttonView.getId() == R.id.edit_field_chkDone) {
-					if (currentJob.getStatus() != Job.STATUS_DONE) {
+					if(currentJob.getStatus() != Job.STATUS_DONE){
 						changed = true;
 						currentJob.setStatus(Job.STATUS_DONE);
 					}
 				}
-				if (changed) {
+				if(changed) {
 					if (currentJob.getStatus() == Job.STATUS_PLANNED) {
 						chkDone.setChecked(false);
 						chkStarted.setChecked(false);
@@ -454,14 +486,11 @@ public class FragmentEditJobPopup extends Fragment implements
 					}
 				}
 			} else {
-				if (buttonView.getId() == R.id.edit_field_chkPlanned
-						&& currentJob.getStatus() == Job.STATUS_PLANNED) {
+				if (buttonView.getId() == R.id.edit_field_chkPlanned && currentJob.getStatus() == Job.STATUS_PLANNED) {
 					chkPlanned.setChecked(true);
-				} else if (buttonView.getId() == R.id.edit_field_chkStarted
-						&& currentJob.getStatus() == Job.STATUS_STARTED) {
+				} else if (buttonView.getId() == R.id.edit_field_chkStarted && currentJob.getStatus() == Job.STATUS_STARTED) {
 					chkStarted.setChecked(true);
-				} else if (buttonView.getId() == R.id.edit_field_chkDone
-						&& currentJob.getStatus() == Job.STATUS_DONE) {
+				} else if (buttonView.getId() == R.id.edit_field_chkDone && currentJob.getStatus() == Job.STATUS_DONE) {
 					chkDone.setChecked(true);
 				}
 			}
@@ -487,6 +516,9 @@ public class FragmentEditJobPopup extends Fragment implements
 			String text = editable.toString();
 			if (view.getId() == R.id.edit_field_etComment) {
 				currentJob.setComments(text);
+			}
+			if (view.getId() == R.id.Seed_Note) {
+				currentJob.setSeednotes(text);
 			}
 		}
 	}
@@ -662,15 +694,15 @@ public class FragmentEditJobPopup extends Fragment implements
 					spinWorker.setSelection(i);
 					found = true;
 					break;
-				} else if (spinWorkerAdapter.getItem(i).getName()
-						.contentEquals("Select Operator")) {
+				} else if(spinWorkerAdapter.getItem(i).getName()
+						.contentEquals("Select Operator")){
 					selectOperatorFound = true;
 				}
 			}
 			if (found == false) {
 				// Add this worker and select
 				Worker newWorker = null;
-				if (workerName.isEmpty() && selectOperatorFound == false) {
+				if(workerName.isEmpty() && selectOperatorFound == false){
 					workerName = "Select Operator";
 					newWorker = new Worker();
 					newWorker.setName(workerName);
@@ -679,7 +711,11 @@ public class FragmentEditJobPopup extends Fragment implements
 					newWorker = new Worker();
 					newWorker.setName(workerName);
 					newWorker.setId(-2);
-				} else if (workerName.isEmpty()) {
+				} else if(workerName.isEmpty() == false) {
+					newWorker = new Worker();
+					newWorker.setName(workerName);
+					newWorker.setId(-2);
+				} else if(workerName.isEmpty()) {	
 					selectWorkerInSpinner("Select Operator");
 				}
 				if (newWorker != null) {
@@ -689,37 +725,65 @@ public class FragmentEditJobPopup extends Fragment implements
 					}
 					selectWorkerInSpinner(workerName);
 				}
+
 			}
 		}
 	}
 
 	@Override
-	public void onItemSelected(AdapterView<?> parent, View view, int pos,
-			long id) {
-		Worker worker = (Worker) parent.getItemAtPosition(pos);
-		Log.d("Selected:", worker.getName());
-		if (worker.getId() == null) {
-			// Create new operation
-			selectWorkerInSpinner(currentJob.getWorkerName()); // Go back to
-																// original for
-																// now, in case
-																// cancel
-			createWorker();
-		} else {
-			String newName = worker.getName();
-			if (worker.getId() == -1)
-				newName = ""; // "Select Operator" selected
-			currentJob.setWorkerName(newName);
-			if (worker.getId() > 0) {
-				// Save this choice in preferences for next open
-				SharedPreferences prefs = PreferenceManager
-						.getDefaultSharedPreferences(this.getActivity()
-								.getApplicationContext());
-				SharedPreferences.Editor editor = prefs.edit();
-				editor.putString("defaultWorker", worker.getName());
-				editor.commit();
+	public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+		if (parent== spinWorker){
+			Worker worker = (Worker) parent.getItemAtPosition(pos);
+			Log.d("Selected:", worker.getName());
+			if (worker.getId() == null) {
+				// Create new operation
+				selectWorkerInSpinner(currentJob.getWorkerName()); // Go back to
+																	// original for
+																	// now, in case
+																	// cancel
+				createWorker();
+			} else {
+				String newName = worker.getName();
+				if(worker.getId() == -1) newName = ""; //"Select Operator" selected
+				currentJob.setWorkerName(newName);
+				if(worker.getId() > 0){
+					// Save this choice in preferences for next open
+					SharedPreferences prefs = PreferenceManager
+							.getDefaultSharedPreferences(this.getActivity()
+									.getApplicationContext());
+					SharedPreferences.Editor editor = prefs.edit();
+					editor.putString("defaultWorker", worker.getName());
+					editor.commit();
+				}
 			}
 		}
+		
+		if (parent == spinSeed){
+			Seed seed = (Seed) parent.getItemAtPosition(pos);
+			Log.d("Selected:", seed.getName());
+			if (seed.getId() == null) {
+				// Create new operation
+				selectSeedInSpinner(currentJob.getSeedName()); // Go back to
+																	// original for
+																	// now, in case
+																	// cancel
+				createSeed();
+			} else {
+				String newSeed = seed.getName();
+				if(seed.getId() == -1) newSeed = ""; //"Select Operator" selected
+				currentJob.setSeedName(newSeed);
+				if(seed.getId() > 0){
+					// Save this choice in preferences for next open
+					SharedPreferences prefs = PreferenceManager
+							.getDefaultSharedPreferences(this.getActivity()
+									.getApplicationContext());
+					SharedPreferences.Editor editor = prefs.edit();
+					editor.putString("defaultSeed", seed.getName());
+					editor.commit();
+				}
+			}
+		}
+
 	}
 
 	@Override
@@ -727,25 +791,177 @@ public class FragmentEditJobPopup extends Fragment implements
 		// TODO Auto-generated method stub
 
 	}
+	
+	// Worker Spinner
+	private void createSeed() {
+		// get prompts.xml view
+		LayoutInflater li = LayoutInflater.from(this.getActivity());
+		View promptsView = li.inflate(R.layout.new_seed_dialog, null);
+
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+				this.getActivity());
+		alertDialogBuilder.setView(promptsView);
+
+		final EditText userInput = (EditText) promptsView
+				.findViewById(R.id.new_seed_dialog_name);
+
+		// set dialog message
+		alertDialogBuilder
+				.setCancelable(false)
+				.setPositiveButton("Add",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								// Create the operation
+								String name = userInput.getText().toString();
+								if (name.isEmpty() == false) {
+									// Create new worker
+									SQLiteDatabase database = dbHelper
+											.getWritableDatabase();
+									ContentValues values = new ContentValues();
+									values.put(TableOperations.COL_HAS_CHANGED,
+											1);
+									values.put(TableOperations.COL_NAME, name);
+									database.insert(TableSeed.TABLE_NAME,
+											null, values);
+
+									dbHelper.close();
+									loadSeedList();
+									selectSeedInSpinner(name);
+
+									// Save this choice in preferences for next
+									// open
+									SharedPreferences prefs = PreferenceManager
+											.getDefaultSharedPreferences(getActivity()
+													.getApplicationContext());
+									SharedPreferences.Editor editor = prefs
+											.edit();
+									editor.putString("defaultSeed", name);
+									editor.commit();
+								}
+							}
+						})
+				.setNegativeButton("Cancel",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								dialog.cancel();
+							}
+						});
+
+		// create alert dialog
+		AlertDialog alertDialog = alertDialogBuilder.create();
+
+		// show it
+		alertDialog.show();
+	}
+
+	private void loadSeedList() {
+		if (spinSeedAdapter != null)
+			spinSeedAdapter.clear();
+		SQLiteDatabase database = dbHelper.getReadableDatabase();
+		Cursor cursor = database.query(TableSeed.TABLE_NAME,
+				TableSeed.COLUMNS, null, null, null, null, null);
+		seedList = new ArrayList<Seed>();
+		while (cursor.moveToNext()) {
+			Seed seed = Seed.cursorToSeed(cursor);
+			if (seed != null)
+				seedList.add(seed);
+			if (spinSeedAdapter != null) {
+				if (seed != null)
+					spinSeedAdapter.add(seed);
+			}
+		}
+		cursor.close();
+		dbHelper.close();
+
+		// Add create
+		if (seedList.isEmpty() == false) {
+			spinSeed.setVisibility(View.VISIBLE);
+			butNewSeed.setVisibility(View.GONE);
+
+			Seed seed = new Seed();
+			seed.setId(null);
+			seed.setName("New Seed");
+			seedList.add(seed);
+			if (spinSeedAdapter != null)
+				spinSeedAdapter.add(seed);
+
+			if (spinSeedAdapter != null)
+				spinSeedAdapter.notifyDataSetChanged();
+			SharedPreferences prefs = PreferenceManager
+					.getDefaultSharedPreferences(this.getActivity()
+							.getApplicationContext());
+			String toSelect = prefs.getString("defaultSeed", null);
+			selectSeedInSpinner(toSelect);
+		} else {
+			// Show button and hide spinner
+			spinSeed.setVisibility(View.GONE);
+			butNewSeed.setVisibility(View.VISIBLE);
+		}
+	}
+
+	private void selectSeedInSpinner(String seedName) {
+		if (spinSeedAdapter != null && seedName != null) {
+			Boolean found = false;
+			Boolean selectSeedFound = false;
+			for (int i = 0; i < spinSeedAdapter.getCount(); i++) {
+				if (spinSeedAdapter.getItem(i).getName()
+						.contentEquals(seedName)) {
+					spinSeed.setSelection(i);
+					found = true;
+					break;
+				} else if(spinSeedAdapter.getItem(i).getName()
+						.contentEquals("Select Seed")){
+					selectSeedFound = true;
+				}
+			}
+			if (found == false) {
+				// Add this worker and select
+				Seed newSeed = null;
+				if(seedName.isEmpty() && selectSeedFound == false){
+					seedName = "Select Seed";
+					newSeed = new Seed();
+					newSeed.setName(seedName);
+					newSeed.setId(-1);
+				} else if(seedName.isEmpty() == false) {
+					newSeed = new Seed();
+					newSeed.setName(seedName);
+					newSeed.setId(-2);
+				} else if(seedName.isEmpty()) {	
+					selectSeedInSpinner("Select Seed");
+				}
+				if (newSeed != null) {
+					seedList.add(newSeed);
+					if (spinSeedAdapter != null) {
+						spinSeedAdapter.add(newSeed);
+					}
+					selectSeedInSpinner(seedName);
+				}				
+			}
+		}
+	}
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		float eventY = event.getRawY();
-
-		switch (event.getAction()) {
-		case MotionEvent.ACTION_DOWN: {
-			listener.SliderDragDown((int) eventY);
-			break;
-		}
-		case MotionEvent.ACTION_UP: {
-			listener.SliderDragUp((int) (eventY));
-			break;
-		}
-		case MotionEvent.ACTION_MOVE: {
-			listener.SliderDragDragging((int) (eventY));
-			break;
-		}
-		}
-		return true;
+		
+		switch (event.getAction())
+        {
+            case MotionEvent.ACTION_DOWN:
+            {
+            	listener.SliderDragDown((int)eventY);
+               break; 
+            }
+            case MotionEvent.ACTION_UP:
+            {     
+            	listener.SliderDragUp((int)(eventY));
+                 break;
+            }
+            case MotionEvent.ACTION_MOVE:
+            {
+            	listener.SliderDragDragging((int)(eventY));
+                break;
+            }
+        }
+        return true;
 	}
 }

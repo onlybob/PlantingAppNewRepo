@@ -13,6 +13,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 	
 	private static final String DATABASE_NAME = "planting.db";
+
 	private static final int DATABASE_VERSION = 2;
 	
 	private static SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
@@ -32,6 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		TableJobs.onCreate(database);
 		TableWorkers.onCreate(database);
 		TableOperations.onCreate(database);
+		TableSeed.onCreate(database);
 	}
 
 	// Method is called during an upgrade of the database,
@@ -41,6 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		TableFields.onUpgrade(database, oldVersion, newVersion);
 		TableJobs.onUpgrade(database, oldVersion, newVersion);
 		TableWorkers.onUpgrade(database, oldVersion, newVersion);
+		TableSeed.onUpgrade(database, oldVersion, newVersion);
 		TableOperations.onUpgrade(database, oldVersion, newVersion);
 	}
 	/*

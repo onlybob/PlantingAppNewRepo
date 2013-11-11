@@ -152,6 +152,7 @@
 			        android:layout_height="wrap_content"
 			        android:background="@android:drawable/btn_dropdown"
 			        android:padding="0dp"
+			        android:ellipsize="end"
 			        android:textSize="14sp"
 			        android:layout_centerVertical="true"
 			        android:visibility="gone"
@@ -168,8 +169,6 @@
 					android:background="@android:drawable/btn_dropdown"/>
 	    	</RelativeLayout>
 	    </RelativeLayout>
-<!--  <<<<<<< HEAD-->
-
    <RelativeLayout
        android:id="@+id/seperator"
        android:layout_width="wrap_content"
@@ -210,20 +209,21 @@
 	        android:text="Add seed variety" />
  
     </RelativeLayout>    
-<!-- =======-->
-   
-<!--   >>>>>>> refs/remotes/origin/master-->
+    </RelativeLayout>
     <ScrollView
         android:id="@+id/slider_scrollView"
 	    android:layout_width="match_parent"
 	    android:layout_height="0dp"
-	    android:layout_below="@+id/edit_field_layStatus"
+	    android:layout_below="@+id/slider_layMenu"
 	    android:background="#EEE">
 
 		<LinearLayout
 		    android:id="@+id/slider_listNotes"
 		    android:layout_width="match_parent"
+		    android:layout_centerHorizontal="true"
 		    android:layout_height="match_parent"
+		    android:layout_alignParentTop="true"
+		    android:gravity="center"
 		    android:orientation="vertical" >
 
 		    <View
@@ -231,19 +231,28 @@
 		        android:layout_height="1dp"
 		        android:background="@android:color/black" />
 
-		    <RelativeLayout
-		        android:id="@+id/sample_seedVar"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="10dp"
-		        android:layout_weight="0.68" >
-
 		        <ImageButton
 		           android:id="@+id/butCamera"
 		           android:layout_width="100dp"
 		           android:layout_height="40dp"
 		           android:layout_centerVertical="true"
 		           android:background="@drawable/ic_launcher" />
+<!--seed var-->
+		    <RelativeLayout
+		        android:id="@+id/sample_seedVar"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_centerHorizontal="true"
+		        android:layout_marginTop="10dp"
+		        android:gravity="center"
+		        android:layout_weight="0.68" >
+
+		        <ImageButton
+		            android:id="@+id/Camera"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_centerVertical="true"
+		            android:background="@drawable/camera"/>
 
 		        <RelativeLayout
 		            android:id="@+id/Seed_Var_Info"
@@ -258,7 +267,30 @@
 		                android:layout_height="32dp"
 		                android:text="Select seed variety"
 		                android:textSize="14sp" />
-
+		          	<RelativeLayout
+		          	    android:id="@+id/Seed_Var_Sel"
+		            	android:layout_width="wrap_content"
+		            	android:layout_height="wrap_content"
+		            	android:layout_centerHorizontal="true">
+						<Spinner
+					        android:id="@+id/edit_field_spinSeed"
+					        android:layout_width="wrap_content"
+					        android:layout_height="wrap_content"
+					        android:background="@android:drawable/btn_dropdown"
+					        android:padding="0dp"
+					        android:textSize="14sp"					        
+					        android:layout_centerVertical="true"
+					        android:visibility="visible"
+					        tools:listitem="@android:layout/simple_spinner_item" />
+			            <Button
+			                android:id="@+id/edit_field_butNewSeed"
+			                android:layout_width="wrap_content"
+			                android:layout_height="wrap_content"
+			                android:text="               Select seed variety                "
+			                android:textSize="14sp" 
+			                android:visibility="gone"
+			                android:background="@android:drawable/btn_dropdown"/>
+					</RelativeLayout>
 		            <EditText
 		                android:id="@+id/Seed_Note"
 		                android:layout_width="wrap_content"
@@ -279,12 +311,12 @@
 		            android:text="Add"
 		            android:textSize="14sp" />
 		    </RelativeLayout>
-
+<!--begin field note entries-->
 		    <View
 		        android:layout_width="fill_parent"
 		        android:layout_height="1dp"
 		        android:background="@android:color/black" />
-
+<!--sample field note 1-->
 		    <RelativeLayout
 		        android:id="@+id/sample_Note1"
 		        android:layout_width="wrap_content"
@@ -316,7 +348,7 @@
 		            android:hint="Write note"
 		            android:textSize="14sp" />
 		    </RelativeLayout>
-
+<!--sample field note 2-->
 		    <RelativeLayout
 		        android:id="@+id/sample_Note2"
 		        android:layout_width="wrap_content"
@@ -351,7 +383,7 @@
 		</LinearLayout>
   
     </ScrollView>
-
+<!--Done button, general field notes-->
     <RelativeLayout
         android:id="@+id/edit_field_layInfo3"
         android:layout_width="wrap_content"
@@ -387,6 +419,5 @@
             android:hint="Comment"
             android:textSize="14sp" />
     </RelativeLayout>
-   </RelativeLayout>
 
 </RelativeLayout>
