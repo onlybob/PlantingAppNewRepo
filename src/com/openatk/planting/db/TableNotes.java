@@ -3,18 +3,23 @@ package com.openatk.planting.db;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class TableSeed {
+public class TableNotes {
 	// Database table
-	public static final String TABLE_NAME = "seeds";
+	public static final String TABLE_NAME = "notes";
 	public static final String COL_ID = "_id";
 	public static final String COL_REMOTE_ID = "remote_id";
 	public static final String COL_HAS_CHANGED = "has_changed";
 	public static final String COL_DATE_CHANGED = "date_changed";
-	public static final String COL_NAME = "name";
-	public static final String COL_SEEDINFO = "seedinfo";
-	
-	public static String[] COLUMNS = { COL_ID, COL_REMOTE_ID, COL_HAS_CHANGED, COL_DATE_CHANGED, COL_NAME, COL_SEEDINFO };
+	public static final String COL_FIELD_NAME = "field_name"; //TODO switch to fieldname
+	public static final String COL_COMMENT = "comment";
+	public static final String COL_TOPIC = "topic";
+	public static final String COL_VISIBLE = "visible";
+	public static final String COL_DELETED = "deleted";
 
+	public static String[] COLUMNS = { COL_ID, COL_REMOTE_ID, COL_HAS_CHANGED, 
+										COL_DATE_CHANGED, COL_FIELD_NAME, COL_COMMENT, COL_TOPIC, 
+										COL_VISIBLE, COL_DELETED };
+	
 	// Database creation SQL statement
 	private static final String DATABASE_CREATE = "create table " 
 	      + TABLE_NAME
@@ -23,8 +28,11 @@ public class TableSeed {
 	      + COL_REMOTE_ID + " text default ''," 
 	      + COL_HAS_CHANGED + " integer," 
 	      + COL_DATE_CHANGED + " text,"
-	      + COL_NAME + " text,"
-	      + COL_SEEDINFO + " text"
+	      + COL_FIELD_NAME + " text,"
+	      + COL_COMMENT + " text,"
+	      + COL_TOPIC + " text,"
+	      + COL_VISIBLE + " integer default 1,"
+	      + COL_DELETED + " integer default 0"
 	      + ");";
 
 	public static void onCreate(SQLiteDatabase database) {
@@ -32,7 +40,7 @@ public class TableSeed {
 	}
 
 	public static void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-		Log.d("TableSeed - onUpgrade", "Upgrade from " + Integer.toString(oldVersion) + " to " + Integer.toString(newVersion));
+		Log.d("TableNotes - onUpgrade", "Upgrade from " + Integer.toString(oldVersion) + " to " + Integer.toString(newVersion));
     	int version = oldVersion;
     	switch(version){
     		case 1: //Launch

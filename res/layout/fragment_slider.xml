@@ -178,7 +178,7 @@
 	    android:background="#EEE">
 
 		<LinearLayout
-		    android:id="@+id/slider_listNotes"
+		    android:id="@+id/slider_listInfo"
 		    android:layout_width="match_parent"
 		    android:layout_centerHorizontal="true"
 		    android:layout_height="match_parent"
@@ -220,7 +220,7 @@
 		            	android:layout_centerHorizontal="true">
 						<Spinner
 					        android:id="@+id/edit_field_spinSeed"
-					        android:layout_width="wrap_content"
+					        android:layout_width="210dp"
 					        android:layout_height="wrap_content"
 					        android:background="@android:drawable/btn_dropdown"
 					        android:padding="0dp"
@@ -238,94 +238,52 @@
 			                android:background="@android:drawable/btn_dropdown"/>
 					</RelativeLayout>
 		            <EditText
-		                android:id="@+id/Seed_Note"
+		                android:id="@+id/Seed_Info"
 		                android:layout_width="wrap_content"
 		                android:layout_height="wrap_content"
 		                android:layout_alignRight="@+id/Seed_Var_Sel"
 		                android:layout_alignLeft="@+id/Seed_Var_Sel"
 		                android:layout_below="@+id/Seed_Var_Sel"
 		                android:hint="Seed Notes"
-		                android:maxLength="10"
 		                android:textSize="14sp" />
 		        </RelativeLayout>
-
-		        <ImageButton
-		            android:id="@+id/Addnote"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_centerVertical="true"
-		            android:layout_toRightOf="@+id/Seed_Var_Info"
-		            android:background="@drawable/plus"/>
 		    </RelativeLayout>
+		    <EditText 
+		        android:id="@+id/Seed_Job_Note"
+		        android:layout_height="wrap_content"
+		        android:layout_width="250dp"
+		        android:layout_below="@+id/sample_seedVar"
+		        android:hint="Seed notes for this field"
+		        android:textSize="14sp"	/>
 <!--begin field note entries-->
 		    <View
+		        android:id="@+id/noteseperator"
 		        android:layout_width="fill_parent"
 		        android:layout_height="1dp"
 		        android:background="@android:color/black" />
-<!--sample field note 1-->
-		    <RelativeLayout
-		        android:id="@+id/sample_Note1"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="10dp" >
-
-		        <EditText
-		            android:id="@+id/edit_note_name1"
-		            android:layout_width="100dp"
-		            android:layout_height="wrap_content"
-		            android:layout_centerVertical="true"
-		            android:hint="Note"
-		            android:textSize="14sp" />
-
-		        <TextView
-		            android:id="@+id/Note_Context1"
+			<RelativeLayout 
+			    android:id="@+id/add_notepair"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content">
+		        <TextView 
+		          	android:id="@+id/addnoteinformative"
+		          	android:layout_height="wrap_content"
+		          	android:layout_width="wrap_content"
+		        	android:textSize="20sp"
+		        	android:text="Add note pair"/>
+		        <ImageButton 
+		            android:id="@+id/add_subnote"
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
-		            android:layout_centerVertical="true"
-		            android:layout_toRightOf="@+id/edit_note_name1"
-		            android:text=":" />
-
-		        <EditText
-		            android:id="@+id/edit_note_context1"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_centerVertical="true"
-		            android:layout_toRightOf="@+id/Note_Context1"
-		            android:hint="Write note"
-		            android:textSize="14sp" />
+		            android:layout_toRightOf="@+id/addnoteinformative"
+		            android:background="@drawable/add"/> 			    
 		    </RelativeLayout>
-<!--sample field note 2-->
-		    <RelativeLayout
-		        android:id="@+id/sample_Note2"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="10dp" >
-
-		        <EditText
-		            android:id="@+id/edit_note_name2"
-		            android:layout_width="100dp"
-		            android:layout_height="wrap_content"
-		            android:layout_centerVertical="true"
-		            android:hint="Note"
-		            android:textSize="14sp" />
-
-		        <TextView
-		            android:id="@+id/Note_Context2"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_centerVertical="true"
-		            android:layout_toRightOf="@+id/edit_note_name2"
-		            android:text=":" />
-
-		        <EditText
-		            android:id="@+id/edit_note_context2"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_centerVertical="true"
-		            android:layout_toRightOf="@+id/Note_Context2"
-		            android:hint="Write note"
-		            android:textSize="14sp" />
-		    </RelativeLayout>
+			<LinearLayout
+			    android:id="@+id/list_notes"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			    android:orientation="vertical" >
+		        </LinearLayout>		
 		</LinearLayout>
   
     </ScrollView>

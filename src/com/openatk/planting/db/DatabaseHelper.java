@@ -33,6 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		TableWorkers.onCreate(database);
 		TableOperations.onCreate(database);
 		TableSeed.onCreate(database);
+		TableNotes.onCreate(database);
 	}
 
 	// Method is called during an upgrade of the database,
@@ -44,6 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		TableWorkers.onUpgrade(database, oldVersion, newVersion);
 		TableSeed.onUpgrade(database, oldVersion, newVersion);
 		TableOperations.onUpgrade(database, oldVersion, newVersion);
+		TableNotes.onUpgrade(database, oldVersion, newVersion);
 	}
 	/*
 	 * Takes in a date and returns it in a string format
