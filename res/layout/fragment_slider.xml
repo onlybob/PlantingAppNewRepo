@@ -100,14 +100,12 @@
 			    android:layout_toRightOf="@+id/edit_field_layInfo1"
 			    android:layout_marginRight="10dp"
 				android:layout_marginLeft="8dp">
-			    <CheckBox 
-			    	android:id="@+id/edit_field_chkPlanned"
+				<CheckBox
+			        android:id="@+id/edit_field_chkPlanned"
 			        android:layout_width="wrap_content"
-			    	android:layout_height="wrap_content"
-			    	android:layout_alignParentTop="true"
-			    	android:layout_centerInParent="true"
-			    	android:button="@drawable/checkbox_planned"
-			        />
+			        android:layout_height="wrap_content"
+			        android:button="@drawable/checkbox_planned" />
+	            
 		    </RelativeLayout>
 		    <RelativeLayout
 		        android:id="@+id/edit_field_layStatusStarted"
@@ -323,4 +321,6 @@
             android:hint="Comment"
             android:textSize="14sp" />
     </RelativeLayout>
+
+   
 </RelativeLayout>

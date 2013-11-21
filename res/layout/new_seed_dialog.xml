@@ -30,7 +30,7 @@
 	        android:id="@+id/new_seed_dialog_name"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:textSize="15sp"
+	        android:textSize="14sp"
 	        android:hint="eg. corn"
 	        android:layout_alignParentRight="true"
 	        android:layout_toRightOf="@+id/new_seed_dialog_label"

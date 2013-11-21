@@ -176,7 +176,8 @@ public class FragmentEditJobPopup extends Fragment implements
 		loadWorkerList();
 		spinWorker.setOnItemSelectedListener(this);
 		spinWorkerAdapter = new ArrayAdapter<Worker>(this.getActivity(),
-				android.R.layout.simple_list_item_1, workerList);
+				//android.R.layout.simple_list_item_1, workerList);
+				R.layout.seed_textview,R.id.SeedListLine, workerList);
 		spinWorker.setAdapter(spinWorkerAdapter);
 		butNewWorker.setOnClickListener(this);
 		loadSeedList();
@@ -449,7 +450,7 @@ public class FragmentEditJobPopup extends Fragment implements
 		} else if (v.getId() == R.id.add_subnote) {
 			//Add a new note
 			Note newNote = new Note(currentField.getName());
-			list_notes.addView(inflateNote(newNote), 0);
+			list_notes.addView(inflateNote(newNote), notes.size());
 			notes.add(newNote);
 			Log.d("Subnote", "Button responds");
 		}
