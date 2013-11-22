@@ -20,7 +20,7 @@
 		    android:id="@+id/new_worker_dialog_label"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:textSize="18sp"
+	        android:textSize="14sp"
 	        android:text="Name:"
 	        android:layout_alignParentLeft="true"
 	        android:layout_marginLeft="8dp"

@@ -17,12 +17,15 @@ import com.openatk.planting.db.TableOperations;
 import com.openatk.planting.db.TableWorkers;
 import com.openatk.planting.db.TableSeed;
 import com.openatk.planting.db.Worker;
+import com.openatk.planting.db.Note;
+import com.openatk.planting.db.TableNotes;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -50,6 +53,9 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -60,7 +66,7 @@ public class FragmentEditJobPopup extends Fragment implements
 	private Field currentField = null;
 
 	private Job currentJob = null;
-
+	
 	private TextView tvName;
 	private TextView tvAcres;
 	private ImageButton butEditField;
@@ -82,14 +88,23 @@ public class FragmentEditJobPopup extends Fragment implements
 	private Spinner spinSeed;
 	private Button butNewSeed;
 
+	private ImageButton AddSubNote;
+	private List<Note> notes;
+	private LinearLayout list_notes;
+	private Note currentNote = null;
+	private Seed seed = null;
+	LayoutInflater vi;
+	
 	private ImageButton butDone;
 	private EditText etComment;
 	private EditText etSeednote;
+	private EditText SeedInfo;
 	//private EditText fieldnote1; //field note title 1
 	//private EditText fieldnoteCon1; //field note content 1
 	//private EditText fieldnote2;  //field note title 2
 	//private EditText fieldnoteCon2; //field note content 2
 	private ImageButton butDelete;
+	private ImageButton CameraButton;
 
 	// Interface for receiving data
 	public interface EditJobListener {
@@ -142,7 +157,8 @@ public class FragmentEditJobPopup extends Fragment implements
 		spinSeed = (Spinner) view.findViewById(R.id.edit_field_spinSeed);
 		butNewSeed = (Button) view
 				.findViewById(R.id.edit_field_butNewSeed);
-		etSeednote = (EditText) view.findViewById(R.id.Seed_Note);
+		etSeednote = (EditText) view.findViewById(R.id.Seed_Job_Note);
+		SeedInfo = (EditText) view.findViewById(R.id.Seed_Info);
 		butDone = (ImageButton) view.findViewById(R.id.edit_field_butDone);
 		etComment = (EditText) view.findViewById(R.id.edit_field_etComment);
 		butDelete = (ImageButton) view.findViewById(R.id.edit_field_butDelete);
@@ -161,7 +177,8 @@ public class FragmentEditJobPopup extends Fragment implements
 		loadWorkerList();
 		spinWorker.setOnItemSelectedListener(this);
 		spinWorkerAdapter = new ArrayAdapter<Worker>(this.getActivity(),
-				android.R.layout.simple_list_item_1, workerList);
+				//android.R.layout.simple_list_item_1, workerList);
+				R.layout.seed_textview,R.id.SeedListLine, workerList);
 		spinWorker.setAdapter(spinWorkerAdapter);
 		butNewWorker.setOnClickListener(this);
 		loadSeedList();
@@ -172,11 +189,19 @@ public class FragmentEditJobPopup extends Fragment implements
 		butNewSeed.setOnClickListener(this);
 		
 		etSeednote.addTextChangedListener(new MyTextWatcher(etSeednote));
-		//fieldnote1.addTextChangedListener(new MyTextWatcher(fieldnote1));
-		//fieldnoteCon1.addTextChangedListener(new MyTextWatcher(fieldnoteCon1));
-		//fieldnote2.addTextChangedListener(new MyTextWatcher(fieldnote2));
-		//fieldnoteCon2.addTextChangedListener(new MyTextWatcher(fieldnoteCon2));
+		
+		SeedInfo.addTextChangedListener(new MyTextWatcher(SeedInfo));
+		
+		CameraButton = (ImageButton) view.findViewById(R.id.CameraButton);
+		
+		AddSubNote = (ImageButton) view
+				.findViewById(R.id.add_subnote);
+		AddSubNote.setOnClickListener(this);
+		list_notes= (LinearLayout) view.findViewById(R.id.list_notes);
+		vi = (LayoutInflater) this.getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		return view;
+		
+		
 	}
 
 	@Override
@@ -223,11 +248,21 @@ public class FragmentEditJobPopup extends Fragment implements
 		if (currentField != null) {
 			tvAcres.setVisibility(View.VISIBLE);
 			butEditField.setVisibility(View.VISIBLE);
-			if (currentField.getName().length() != 0)
-				tvName.setText(currentField.getName());
+			if (currentField.getName().length() != 0) tvName.setText(currentField.getName());
 			tvAcres.setText(Integer.toString(currentField.getAcres()));
+			list_notes.removeAllViews();
+			notes = Note.FindNotesByFieldName(dbHelper.getReadableDatabase(), currentField.getName());
+			Log.d("FragmentEditJobPopup", "Number of notes loaded:" + Integer.toString(notes.size()));
+			if(currentJob != null) {
+				currentJob.setNotes(notes);
+			}
+			for(int i=0; i<notes.size(); i++){
+				//Add note to list
+				list_notes.addView(inflateNote(notes.get(i)));
+			}
 		} else {
 			Log.d("FragmentEditJobPopup - getData", "ERROR - current field is null from activity");
+			notes = null;
 			if(currentJob != null){
 				//Deleted field but it is still a job, disable field edit and acres
 				tvName.setText(currentJob.getFieldName());
@@ -333,12 +368,63 @@ public class FragmentEditJobPopup extends Fragment implements
 		}
 		Log.d("FragmentEditJobPopup", "Attached");
 	}
+	private View inflateNote(Note note){
+		View view = vi.inflate(R.layout.note_row, null);
+		NoteView noteView = new NoteView();
+		noteView.notePair = (RelativeLayout) view.findViewById(R.id.note_pair);
+		noteView.Topic = (EditText) view.findViewById(R.id.edit_note_name1);
+		noteView.Content = (EditText) view.findViewById(R.id.edit_note_context1);
+		noteView.Comment = (TextView) view.findViewById(R.id.colon);
+		noteView.me = view;
+		noteView.note = note;
+		
+		noteView.Topic.setText(note.getTopic());
+		noteView.Content.setText(note.getComment());
+		
+		noteView.Topic.setTag(noteView);
+		noteView.Content.setTag(noteView);
+		
+		noteView.Topic.addTextChangedListener(new MyTextWatcher(noteView.Topic));
+		noteView.Content.addTextChangedListener(new MyTextWatcher(noteView.Content));
+		view.setTag(noteView);
+		return view;
+	}
+	static class NoteView
+    {
+		TextView Comment;
+		EditText Topic;
+		EditText Content;
+		Note note;
+		RelativeLayout notePair;
+		View me;
+    }
+	/*private void SaveNote(Note note){
+		SQLiteDatabase database = dbHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put(TableNotes.COL_COMMENT,note.getComment());
+		values.put(TableNotes.COL_TOPIC, note.getTopic());
+		values.put(TableNotes.COL_FIELD_NAME,note.getFieldName());
+		//values.put(TableNotes.COL_POLYGONS, note.getStrPolygons());
+		
+		//TODO more stuff
+		if(note.getId() == null){
+			//New note
+			database.insert(TableNotes.TABLE_NAME, null, values);
+		} else {
+			//Editing note
+			String where = TableNotes.COL_ID + " = " + note.getId();
+			database.update(TableNotes.TABLE_NAME, values, where, null);
+		}
+		database.close();
+		dbHelper.close();
+	}*/
 
 	@Override
 	public void onClick(View v) {
+		NoteView noteView = (NoteView) v.getTag();
 		if (v.getId() == R.id.edit_field_butDone) {
 			// Pass all info back to activity
-			// TODO check if has changes
+			// TODO check if has changes			
 			flushChangesAndSave(true);
 		} else if (v.getId() == R.id.edit_field_butDelete) {
 			new AlertDialog.Builder(this.getActivity())
@@ -366,6 +452,12 @@ public class FragmentEditJobPopup extends Fragment implements
 			createSeed();
 		} else if (v.getId() == R.id.edit_field_butEditField) {
 			listener.EditJobEditField();
+		} else if (v.getId() == R.id.add_subnote) {
+			//Add a new note
+			Note newNote = new Note(currentField.getName());
+			list_notes.addView(inflateNote(newNote), notes.size());
+			notes.add(newNote);
+			Log.d("Subnote", "Button responds");
 		}
 	}
 
@@ -382,6 +474,7 @@ public class FragmentEditJobPopup extends Fragment implements
 	private void flush() {
 		currentJob.setDateChanged(DatabaseHelper.dateToStringUTC(new Date()));
 		currentJob.setHasChanged(1);
+		currentJob.setNotes(notes);
 	}
 
 	public int getHeight() {
@@ -457,8 +550,29 @@ public class FragmentEditJobPopup extends Fragment implements
 			if (view.getId() == R.id.edit_field_etComment) {
 				currentJob.setComments(text);
 			}
-			if (view.getId() == R.id.Seed_Note) {
+			if (view.getId() == R.id.Seed_Job_Note) {
 				currentJob.setSeednotes(text);
+			}
+			if (view.getId() == R.id.edit_note_name1) {
+				NoteView noteview = (NoteView) view.getTag();
+				noteview.note.setTopic(text);
+			}
+			if (view.getId() == R.id.edit_note_context1) {
+				NoteView noteview = (NoteView) view.getTag();
+				noteview.note.setComment(text);
+			}
+			if (view.getId() == R.id.Seed_Info){
+				Seed seed = (Seed) view.getTag();
+				if(seed != null){
+					seed.setSeedinfo(text);
+					Log.d("textwatcher", "saving to seed database" + Integer.toString(seed.getId()));
+					SQLiteDatabase database = dbHelper.getWritableDatabase();
+					ContentValues values = new ContentValues();
+					values.put(TableSeed.COL_SEEDINFO,seed.getSeedinfo());
+					String where = TableSeed.COL_ID + " = " + Integer.toString(seed.getId());
+					database.update(TableSeed.TABLE_NAME, values, where, null);
+					dbHelper.close();
+				}
 			}
 		}
 	}
@@ -715,6 +829,10 @@ public class FragmentEditJobPopup extends Fragment implements
 				SharedPreferences.Editor editor = prefs.edit();
 				editor.putString("defaultSeed", seed.getName());
 				editor.commit();
+				seed = Seed.FindSeedNoteBySeedID(dbHelper.getReadableDatabase(), seed.getId());
+				Log.d("OnItemSelected", "Load seed from db:" + Integer.toString(seed.getId()) + " : " + seed.getSeedinfo());
+				SeedInfo.setTag(seed);
+				SeedInfo.setText(seed.getSeedinfo());	
 			}
 		}
 		}
@@ -794,7 +912,7 @@ public class FragmentEditJobPopup extends Fragment implements
 				spinSeedAdapter.clear();
 			SQLiteDatabase database = dbHelper.getReadableDatabase();
 			Cursor cursor = database.query(TableSeed.TABLE_NAME,
-					TableSeed.COLUMNS, null, null, null, null, null);
+					TableSeed.COLUMNS, null, null, null, null, null, null);
 			seedList = new ArrayList<Seed>();
 			while (cursor.moveToNext()) {
 				Seed seed = Seed.cursorToSeed(cursor);

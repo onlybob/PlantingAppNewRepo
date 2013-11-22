@@ -1,5 +1,9 @@
 package com.openatk.planting.db;
+import java.util.ArrayList;
+import java.util.List;
+
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class Seed {
 	private Integer id = null;
@@ -7,7 +11,7 @@ public class Seed {
 	private Integer hasChanged = 0;
 	private String dateChanged = null;
 	private String name = "";
-	//private String seednotes = ""; 
+	private String seedinfo = ""; 
 
 	public Seed(){
 		
@@ -56,12 +60,12 @@ public class Seed {
 		this.dateChanged = dateChanged;
 	}
 	
-	/*public String getSeednotes() {
-		return seednotes;
+	public String getSeedinfo() {
+		return seedinfo;
 	}
-	public void setSeednotes(String seednotes) {
-		this.seednotes = seednotes;
-	}*/
+	public void setSeedinfo(String seedinfo) {
+		this.seedinfo = seedinfo;
+	}
 	public static Seed cursorToSeed(Cursor cursor) {
 		if(cursor != null){
 			Seed seed = new Seed();
@@ -70,7 +74,7 @@ public class Seed {
 			seed.setHasChanged(cursor.getInt(cursor.getColumnIndex(TableSeed.COL_HAS_CHANGED)));
 			seed.setName(cursor.getString(cursor.getColumnIndex(TableSeed.COL_NAME)));
 			seed.setDateChanged(cursor.getString(cursor.getColumnIndex(TableSeed.COL_DATE_CHANGED)));
-			//seed.setSeednotes(cursor.getString(cursor.getColumnIndex(TableSeed.COL_SEEDNOTES)));
+			seed.setSeedinfo(cursor.getString(cursor.getColumnIndex(TableSeed.COL_SEEDINFO)));
 			return seed;
 		} else {
 			return null;
@@ -79,5 +83,18 @@ public class Seed {
 	
 	public String toString(){
 		return name;
+	}
+	public static Seed FindSeedNoteBySeedID(SQLiteDatabase database, Integer seedID){
+		if (seedID != null) {
+			// Find current field
+			String where = TableSeed.COL_ID + " = " + Integer.toString(seedID);
+			Cursor cursor = database.query(TableSeed.TABLE_NAME,TableSeed.COLUMNS, where, null, null, null, null);
+			cursor.moveToFirst(); 
+			Seed seedinfoobtain = Seed.cursorToSeed(cursor);			
+			cursor.close();
+			return seedinfoobtain;
+		} else {
+			return null;
+		}
 	}
 }

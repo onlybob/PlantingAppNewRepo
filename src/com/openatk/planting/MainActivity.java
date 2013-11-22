@@ -75,9 +75,11 @@ import com.openatk.planting.FragmentListView.ListViewListener;
 import com.openatk.planting.db.DatabaseHelper;
 import com.openatk.planting.db.Field;
 import com.openatk.planting.db.Job;
+import com.openatk.planting.db.Note;
 import com.openatk.planting.db.Operation;
 import com.openatk.planting.db.TableFields;
 import com.openatk.planting.db.TableJobs;
+import com.openatk.planting.db.TableNotes;
 import com.openatk.planting.db.TableOperations;
 import com.openatk.planting.drawing.MyPolygon;
 import com.openatk.planting.drawing.MyPolygon.MyPolygonListener;
@@ -1310,6 +1312,28 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 								+ " - Field Id:"
 								+ Integer.toString(job.getId()) + ", Op Id:"
 								+ currentOperationId);
+			}
+			
+			//Add notes to notes table
+			List<Note> notes = currentJob.getNotes();
+			Log.d("MainActivity - EditJobSave", "Number of notes: " + Integer.toString(notes.size()));
+			for(int i=0; i<notes.size(); i++){
+				Note toadd = notes.get(i);
+				ContentValues values2 = new ContentValues();
+				values2.put(TableNotes.COL_TOPIC, toadd.getTopic());
+				values2.put(TableNotes.COL_COMMENT, toadd.getComment());
+				values2.put(TableNotes.COL_FIELD_NAME, currentJob.getFieldName());
+				if(toadd.getId() == null){
+					//New note, no id
+					Integer newNoteId = (int) database.insert(TableNotes.TABLE_NAME, null, values2);
+					toadd.setId(newNoteId);
+					Log.d("MainActivity - EditJobSave", "Inserted new note in db");
+				} else {
+					//Update this note in the db
+					String where2 = TableNotes.COL_ID + " = " + toadd.getId() +  " AND " + TableNotes.COL_DELETED + " = 0";
+					database.update(TableNotes.TABLE_NAME, values2, where2, null);
+					Log.d("MainActivity - EditJobSave", "Updated note comments");
+				}
 			}
 			dbHelper.close();
 			// Set fill according to status

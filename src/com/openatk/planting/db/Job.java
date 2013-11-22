@@ -1,4 +1,7 @@
 package com.openatk.planting.db;
+import java.util.ArrayList;
+import java.util.List;
+
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -26,7 +29,7 @@ public class Job {
 	private String comments = "";
 	private String seednotes = "";
 	private Integer deleted = 0;
-
+	private List<Note> notes = new ArrayList<Note>();
 
 	public Job(){
 		
@@ -43,6 +46,10 @@ public class Job {
 
 	public String getRemote_id() {
 		return remote_id;
+	}
+	
+	public List<Note> getNotes() {
+		return this.notes;
 	}
 
 
@@ -113,6 +120,9 @@ public class Job {
 		this.remote_id = remote_id;
 	}
 
+	public void setNotes(List<Note> notes){
+		this.notes = notes;
+	}
 
 	public void setHasChanged(Integer hasChanged) {
 		this.hasChanged = hasChanged;
