@@ -1,5 +1,6 @@
 package com.openatk.planting;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -15,10 +16,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -132,6 +136,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
     TrelloController trelloController;
     
     SupportMapFragment fragMap = null;
+    
+    private File file;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -273,7 +279,42 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 		}
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 	}
+	@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            Log.d("onActivityResult",
+                            "onActivityResult:" + Integer.toString(resultCode));
 
+            // Picture taken
+            if (requestCode == 100 && resultCode == -1) {
+                    // imageView.setImageBitmap(bitmap);
+
+                    if (this.fragmentEditField != null) {
+                            // Log.d("onActivityResult", "HERE");
+                            // store file into SD
+                            //file = new File(Environment.getExternalStorageDirectory()+ File.separator + "image.jpg");
+                            // make bitmap from file in SD
+                            BitmapFactory.Options options = new BitmapFactory.Options();
+                            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                            file = this.fragmentEditField.image;
+                            // set bitmap to image path
+                            Bitmap bitmap = BitmapFactory.decodeFile(
+                                            file.getAbsolutePath(), options);
+
+                            this.fragmentEditField.changeCameraIcon(bitmap);
+                    }
+
+                    // ====Alert dialog full picture====
+
+//                    ImageView imgView = (ImageView) findViewById(R.id.variety_img);
+//                    // TODO: change URI to variable - What if null?
+//                    imgView.setImageURI(Uri.parse(file.getAbsolutePath()));
+//                    // code to show image in alert dialog
+//
+//                    // set image to full image from path
+//                    imgView.setImageBitmap(decodeSampledBitmapFromFile(
+//                                    file.getAbsolutePath(), 500, 250));
+            }
+    }
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		if(addIsShowing == 1){
@@ -961,6 +1002,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 			layout.setLayoutParams(params);
 			FragmentManager fm = getSupportFragmentManager();
 			FragmentEditJobPopup fragment = new FragmentEditJobPopup();
+			
 			FragmentTransaction ft = fm.beginTransaction();
 			if (transition)
 				ft.setCustomAnimations(R.anim.slide_up, R.anim.slide_down);

@@ -1,5 +1,6 @@
 package com.openatk.planting;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,11 +28,16 @@ import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -105,9 +111,21 @@ public class FragmentEditJobPopup extends Fragment implements
 	//private EditText fieldnoteCon2; //field note content 2
 	private ImageButton butDelete;
 	private ImageButton CameraButton;
+	private ImageButton CameraResult;
+	private boolean pictureTaken = false;
+	private String imageSeedName;
+	public File image;
 
+	public File getImage() {
+		return image;
+	}
+
+	public void setImage(File image) {
+		this.image = image;
+	}
 	// Interface for receiving data
 	public interface EditJobListener {
+		
 		public void EditJobSave(Job job);
 
 		public void EditJobSave(Job job, Boolean changeState, Boolean unselect);
@@ -193,6 +211,9 @@ public class FragmentEditJobPopup extends Fragment implements
 		SeedInfo.addTextChangedListener(new MyTextWatcher(SeedInfo));
 		
 		CameraButton = (ImageButton) view.findViewById(R.id.CameraButton);
+		CameraButton.setOnClickListener(this);
+		CameraResult = (ImageButton) view.findViewById(R.id.CameraResult);
+		CameraResult.setOnClickListener(this);
 		
 		AddSubNote = (ImageButton) view
 				.findViewById(R.id.add_subnote);
@@ -458,7 +479,67 @@ public class FragmentEditJobPopup extends Fragment implements
 			list_notes.addView(inflateNote(newNote), notes.size());
 			notes.add(newNote);
 			Log.d("Subnote", "Button responds");
-		}
+		} else if (v.getId() == R.id.CameraButton) {
+            /*
+             * File newFile = getOutputMediaFile();
+             * 
+             * // create Intent to take a picture and return control to the
+             * calling // application Intent intent = new
+             * Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+             * 
+             * Uri newFileURI = Uri.fromFile(newFile); // create a file to save
+             * the // image intent.putExtra(MediaStore.EXTRA_OUTPUT,
+             * newFileURI); // set the // image // file name
+             */
+            //if (pictureTaken == false) {
+			//Log.d("Camera Image naming","Image name=" + seed.getName());
+                    Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                    //File file = new File(Environment.getExternalStorageDirectory()+ File.separator + "image.jpg");
+                    File imagesFolder = new File(File.separator +"sdcard"+File.separator +"OpenAtk Planting App Seed Photos");
+                    imagesFolder.mkdirs(); // <----
+                    if(imageSeedName == null) imageSeedName = "Null";
+                    Log.d("Camera Image naming","Image name="+ imageSeedName);
+                    image = new File(imagesFolder,imageSeedName + ".jpg");
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image));
+                    this.getActivity().startActivityForResult(intent, 100);
+                    pictureTaken = true;
+                    CameraResult.setVisibility(View.VISIBLE);
+            //}
+            //if (pictureTaken == true) {// show picture
+                    
+                    
+            // AlertDialog.Builder alertadd = new
+            // AlertDialog.Builder(this.getActivity());
+            // LayoutInflater factory = LayoutInflater.from(this.getActivity());
+            // final View view = factory.inflate(R.layout.alert_dialog, null);
+            // alertadd.setView(view);
+            //
+            // alertadd.show();
+			} else if (v.getId() == R.id.CameraResult) {
+				loadPhoto(CameraResult, 100, 100);
+				
+            }	
+	}
+	 private void loadPhoto(ImageView imageView, int width, int height) {		 	
+	        ImageView tempImageView = imageView;
+
+
+	        AlertDialog.Builder imageDialog = new AlertDialog.Builder(this.getActivity());
+	        LayoutInflater inflater = (LayoutInflater) LayoutInflater.from(this.getActivity());
+
+	        View layout = inflater.inflate(R.layout.custom_fullimage_dialog,
+	                (ViewGroup) getActivity().findViewById(R.id.layout_root));
+	        ImageView image = (ImageView) layout.findViewById(R.id.fullimage);
+	        image.setImageDrawable(tempImageView.getDrawable());
+	        imageDialog.setView(layout);
+
+
+	        imageDialog.create();
+	        imageDialog.show();     
+	    }
+	public void changeCameraIcon(Bitmap bitmap){
+		Log.d("camera","icon changed");
+        this.CameraResult.setImageBitmap(bitmap);
 	}
 
 	public void flushChangesAndSave(Boolean changeState, Boolean unselect) {
@@ -833,6 +914,7 @@ public class FragmentEditJobPopup extends Fragment implements
 				Log.d("OnItemSelected", "Load seed from db:" + Integer.toString(seed.getId()) + " : " + seed.getSeedinfo());
 				SeedInfo.setTag(seed);
 				SeedInfo.setText(seed.getSeedinfo());	
+				imageSeedName = seed.getName();
 			}
 		}
 		}
