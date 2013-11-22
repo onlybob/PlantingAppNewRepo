@@ -11,9 +11,10 @@ public class TableSeed {
 	public static final String COL_HAS_CHANGED = "has_changed";
 	public static final String COL_DATE_CHANGED = "date_changed";
 	public static final String COL_NAME = "name";
+	public static final String COL_IMAGE = "image";
 	public static final String COL_SEEDINFO = "seedinfo";
 	
-	public static String[] COLUMNS = { COL_ID, COL_REMOTE_ID, COL_HAS_CHANGED, COL_DATE_CHANGED, COL_NAME, COL_SEEDINFO };
+	public static String[] COLUMNS = { COL_ID, COL_REMOTE_ID, COL_HAS_CHANGED, COL_DATE_CHANGED, COL_NAME, COL_IMAGE, COL_SEEDINFO };
 
 	// Database creation SQL statement
 	private static final String DATABASE_CREATE = "create table " 
@@ -24,6 +25,7 @@ public class TableSeed {
 	      + COL_HAS_CHANGED + " integer," 
 	      + COL_DATE_CHANGED + " text,"
 	      + COL_NAME + " text,"
+	      + COL_IMAGE + " text,"
 	      + COL_SEEDINFO + " text"
 	      + ");";
 

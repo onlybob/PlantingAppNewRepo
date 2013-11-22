@@ -296,11 +296,13 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
                             BitmapFactory.Options options = new BitmapFactory.Options();
                             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                             file = this.fragmentEditField.image;
+                            
                             // set bitmap to image path
                             Bitmap bitmap = BitmapFactory.decodeFile(
                                             file.getAbsolutePath(), options);
-
+                            Log.d("camera","Icon once picture taken" + file.getAbsolutePath());
                             this.fragmentEditField.changeCameraIcon(bitmap);
+                            
                     }
 
                     // ====Alert dialog full picture====

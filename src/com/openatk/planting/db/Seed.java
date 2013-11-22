@@ -12,6 +12,7 @@ public class Seed {
 	private String dateChanged = null;
 	private String name = "";
 	private String seedinfo = ""; 
+	private String image = "";
 
 	public Seed(){
 		
@@ -38,8 +39,13 @@ public class Seed {
 	public String getDateChanged() {
 		return dateChanged;
 	}
-
-
+	
+	public String getSeedinfo() {
+		return seedinfo;
+	}
+	public String getImage() {
+		return image;
+	}
 	public void setId(Integer id) {
 		this.id = id;
 	}
@@ -60,11 +66,12 @@ public class Seed {
 		this.dateChanged = dateChanged;
 	}
 	
-	public String getSeedinfo() {
-		return seedinfo;
-	}
+
 	public void setSeedinfo(String seedinfo) {
 		this.seedinfo = seedinfo;
+	}
+	public void setImage(String image) {
+		this.image = image;
 	}
 	public static Seed cursorToSeed(Cursor cursor) {
 		if(cursor != null){
@@ -75,6 +82,7 @@ public class Seed {
 			seed.setName(cursor.getString(cursor.getColumnIndex(TableSeed.COL_NAME)));
 			seed.setDateChanged(cursor.getString(cursor.getColumnIndex(TableSeed.COL_DATE_CHANGED)));
 			seed.setSeedinfo(cursor.getString(cursor.getColumnIndex(TableSeed.COL_SEEDINFO)));
+			seed.setImage(cursor.getString(cursor.getColumnIndex(TableSeed.COL_IMAGE)));
 			return seed;
 		} else {
 			return null;

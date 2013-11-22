@@ -33,6 +33,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -99,6 +100,7 @@ public class FragmentEditJobPopup extends Fragment implements
 	private LinearLayout list_notes;
 	private Note currentNote = null;
 	private Seed seed = null;
+	private Seed seedim = null;
 	LayoutInflater vi;
 	
 	private ImageButton butDone;
@@ -115,6 +117,7 @@ public class FragmentEditJobPopup extends Fragment implements
 	private boolean pictureTaken = false;
 	private String imageSeedName;
 	public File image;
+	//private String imageLoc;
 
 	public File getImage() {
 		return image;
@@ -419,26 +422,6 @@ public class FragmentEditJobPopup extends Fragment implements
 		RelativeLayout notePair;
 		View me;
     }
-	/*private void SaveNote(Note note){
-		SQLiteDatabase database = dbHelper.getWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put(TableNotes.COL_COMMENT,note.getComment());
-		values.put(TableNotes.COL_TOPIC, note.getTopic());
-		values.put(TableNotes.COL_FIELD_NAME,note.getFieldName());
-		//values.put(TableNotes.COL_POLYGONS, note.getStrPolygons());
-		
-		//TODO more stuff
-		if(note.getId() == null){
-			//New note
-			database.insert(TableNotes.TABLE_NAME, null, values);
-		} else {
-			//Editing note
-			String where = TableNotes.COL_ID + " = " + note.getId();
-			database.update(TableNotes.TABLE_NAME, values, where, null);
-		}
-		database.close();
-		dbHelper.close();
-	}*/
 
 	@Override
 	public void onClick(View v) {
@@ -480,19 +463,7 @@ public class FragmentEditJobPopup extends Fragment implements
 			notes.add(newNote);
 			Log.d("Subnote", "Button responds");
 		} else if (v.getId() == R.id.CameraButton) {
-            /*
-             * File newFile = getOutputMediaFile();
-             * 
-             * // create Intent to take a picture and return control to the
-             * calling // application Intent intent = new
-             * Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-             * 
-             * Uri newFileURI = Uri.fromFile(newFile); // create a file to save
-             * the // image intent.putExtra(MediaStore.EXTRA_OUTPUT,
-             * newFileURI); // set the // image // file name
-             */
-            //if (pictureTaken == false) {
-			//Log.d("Camera Image naming","Image name=" + seed.getName());
+    
                     Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
                     //File file = new File(Environment.getExternalStorageDirectory()+ File.separator + "image.jpg");
                     File imagesFolder = new File(File.separator +"sdcard"+File.separator +"OpenAtk Planting App Seed Photos");
@@ -502,8 +473,7 @@ public class FragmentEditJobPopup extends Fragment implements
                     image = new File(imagesFolder,imageSeedName + ".jpg");
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image));
                     this.getActivity().startActivityForResult(intent, 100);
-                    pictureTaken = true;
-                    CameraResult.setVisibility(View.VISIBLE);
+                    CameraResult.setVisibility(View.VISIBLE);                  
             //}
             //if (pictureTaken == true) {// show picture
                     
@@ -538,8 +508,19 @@ public class FragmentEditJobPopup extends Fragment implements
 	        imageDialog.show();     
 	    }
 	public void changeCameraIcon(Bitmap bitmap){
-		Log.d("camera","icon changed");
+		String imageLoc = image.getAbsolutePath();
+		Log.d("camera","icon changed" + imageLoc);
         this.CameraResult.setImageBitmap(bitmap);
+        Log.d("Icon changed","Confirmed");
+        /*seed.setImage(imageLoc);
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+		ContentValues values = new ContentValues();
+		/*values.put(TableSeed.COL_IMAGE,seed.getImage());
+		String where = TableSeed.COL_ID + " = " + Integer.toString(seed.getId());
+		database.update(TableSeed.TABLE_NAME, values, where, null);
+		dbHelper.close();
+		Log.d("Icon changed","Confirmed");*/
+        
 	}
 
 	public void flushChangesAndSave(Boolean changeState, Boolean unselect) {
@@ -915,6 +896,14 @@ public class FragmentEditJobPopup extends Fragment implements
 				SeedInfo.setTag(seed);
 				SeedInfo.setText(seed.getSeedinfo());	
 				imageSeedName = seed.getName();
+                Bitmap bitmap = null;
+				BitmapFactory.Options options = new BitmapFactory.Options();
+                if(image != null) {
+                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                	bitmap = BitmapFactory.decodeFile(image.getAbsolutePath(), options);
+                	changeCameraIcon(bitmap);
+                }
+				
 			}
 		}
 		}
@@ -993,8 +982,7 @@ public class FragmentEditJobPopup extends Fragment implements
 			if (spinSeedAdapter != null)
 				spinSeedAdapter.clear();
 			SQLiteDatabase database = dbHelper.getReadableDatabase();
-			Cursor cursor = database.query(TableSeed.TABLE_NAME,
-					TableSeed.COLUMNS, null, null, null, null, null, null);
+			Cursor cursor = database.query(TableSeed.TABLE_NAME,TableSeed.COLUMNS, null, null, null, null, null);
 			seedList = new ArrayList<Seed>();
 			while (cursor.moveToNext()) {
 				Seed seed = Seed.cursorToSeed(cursor);
