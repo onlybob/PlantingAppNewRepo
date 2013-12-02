@@ -99,7 +99,7 @@ public class FragmentEditJobPopup extends Fragment implements
 	private List<Note> notes;
 	private LinearLayout list_notes;
 	private Note currentNote = null;
-	private Seed seed = null;
+	private Seed seed;
 	private Seed seedim = null;
 	LayoutInflater vi;
 	
@@ -117,6 +117,7 @@ public class FragmentEditJobPopup extends Fragment implements
 	private boolean pictureTaken = false;
 	private String imageSeedName;
 	public File image;
+	private Seed seedObjectImage;
 	//private String imageLoc;
 
 	public File getImage() {
@@ -471,8 +472,7 @@ public class FragmentEditJobPopup extends Fragment implements
                     Log.d("Camera Image naming","Image name="+ imageSeedName);
                     image = new File(imagesFolder,imageSeedName + ".jpg");
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image));
-                    this.getActivity().startActivityForResult(intent, 100);
-                    CameraResult.setVisibility(View.VISIBLE);                  
+                    this.getActivity().startActivityForResult(intent, 100);                                      
             //}
             //if (pictureTaken == true) {// show picture
                     
@@ -513,17 +513,20 @@ public class FragmentEditJobPopup extends Fragment implements
 		Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
         this.CameraResult.setImageBitmap(scaled);
         Log.d("Icon changed","Confirmed");
-        if(seed != null) {
-        	seed.setImage(image.getAbsolutePath());
+        if(seedObjectImage != null) {
+			CameraResult.setVisibility(View.VISIBLE);// Go back to
+        	//seed.setImage(image.getAbsolutePath());
         	SQLiteDatabase database = dbHelper.getWritableDatabase();
      		ContentValues values = new ContentValues();
-     		values.put(TableSeed.COL_IMAGE,seed.getImage());
-     		String where = TableSeed.COL_ID + " = " + Integer.toString(seed.getId());
+     		values.put(TableSeed.COL_IMAGE,image.getAbsolutePath());
+     		String where = TableSeed.COL_ID + " = " + Integer.toString(seedObjectImage.getId());
      		database.update(TableSeed.TABLE_NAME, values, where, null);
      		dbHelper.close();
-    		Log.d("Icon changed","Saved new Image to Seed Database");
+    		Log.d("Icon changed","Save where:"  + where);
+    		Log.d("Icon changed","Save path:"  + image.getAbsolutePath());
+    		Log.d("Icon changed","Saved new Image to Seed Database"  + ":" + Integer.toString(seedObjectImage.getId()));
         } else {
-    		Log.d("Icon changed","Seed is null ERROR");
+    		Log.d("Icon changed","seedObjectImage is null ERROR");
         }        
 	}
 
@@ -878,15 +881,17 @@ public class FragmentEditJobPopup extends Fragment implements
 		Log.d("Selected:", seed.getName());
 		if (seed.getId() == null) {
 			// Create new operation
-			selectSeedInSpinner(currentJob.getSeedName()); // Go back to
-																// original for
+			selectSeedInSpinner(currentJob.getSeedName());
+			//CameraResult.setVisibility(View.GONE);// Go back to
+			//CameraButton.setVisibility(View.GONE);													// original for
 																// now, in case
 																// cancel
 			createSeed();
 		} else {
 			String newSeed = seed.getName();
-			if(seed.getId() == -1) newSeed = ""; //"Select Operator" selected
+			if(seed.getId() == -1) newSeed = ""; //"Select Seed" selected
 			currentJob.setSeedName(newSeed);
+			CameraResult.setVisibility(View.GONE);
 			if(seed.getId() > 0){
 				// Save this choice in preferences for next open
 				SharedPreferences prefs = PreferenceManager
@@ -901,9 +906,15 @@ public class FragmentEditJobPopup extends Fragment implements
 				SeedInfo.setText(seed.getSeedinfo());	
 				imageSeedName = seed.getName();
 				String imagePath = seed.getImage();
+				seedObjectImage = Seed.FindSeedNoteBySeedID(dbHelper.getReadableDatabase(), seed.getId());
+
 				if(imagePath != null) {
 					image = new File(imagePath);
                 	changeCameraIcon();
+                	CameraResult.setVisibility(View.VISIBLE);
+                } else {
+                	Log.d("Spinner", "imagePath is null");
+                	CameraResult.setVisibility(View.GONE);
                 }
 				
 			}
