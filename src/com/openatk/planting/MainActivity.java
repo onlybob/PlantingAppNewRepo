@@ -137,7 +137,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
     
     SupportMapFragment fragMap = null;
     
-    private File file;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -290,19 +289,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 
                     if (this.fragmentEditField != null) {
                             // Log.d("onActivityResult", "HERE");
-                            // store file into SD
-                            //file = new File(Environment.getExternalStorageDirectory()+ File.separator + "image.jpg");
-                            // make bitmap from file in SD
-                            BitmapFactory.Options options = new BitmapFactory.Options();
-                            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                            file = this.fragmentEditField.image;
-                            
-                            // set bitmap to image path
-                            Bitmap bitmap = BitmapFactory.decodeFile(
-                                            file.getAbsolutePath(), options);
-                            Log.d("camera","Icon once picture taken" + file.getAbsolutePath());
-                            this.fragmentEditField.changeCameraIcon(bitmap);
-                            
+                            this.fragmentEditField.changeCameraIcon();
                     }
 
                     // ====Alert dialog full picture====

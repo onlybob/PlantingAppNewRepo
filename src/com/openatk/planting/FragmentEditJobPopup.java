@@ -463,7 +463,6 @@ public class FragmentEditJobPopup extends Fragment implements
 			notes.add(newNote);
 			Log.d("Subnote", "Button responds");
 		} else if (v.getId() == R.id.CameraButton) {
-    
                     Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
                     //File file = new File(Environment.getExternalStorageDirectory()+ File.separator + "image.jpg");
                     File imagesFolder = new File(File.separator +"sdcard"+File.separator +"OpenAtk Planting App Seed Photos");
@@ -507,20 +506,25 @@ public class FragmentEditJobPopup extends Fragment implements
 	        imageDialog.create();
 	        imageDialog.show();     
 	    }
-	public void changeCameraIcon(Bitmap bitmap){
-		String imageLoc = image.getAbsolutePath();
-		Log.d("camera","icon changed" + imageLoc);
-        this.CameraResult.setImageBitmap(bitmap);
+	public void changeCameraIcon(){
+		Log.d("camera","icon changed" + image.getAbsolutePath());
+		Bitmap bitmap = BitmapFactory.decodeFile(image.getAbsolutePath());
+		int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
+		Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
+        this.CameraResult.setImageBitmap(scaled);
         Log.d("Icon changed","Confirmed");
-        /*seed.setImage(imageLoc);
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-		ContentValues values = new ContentValues();
-		/*values.put(TableSeed.COL_IMAGE,seed.getImage());
-		String where = TableSeed.COL_ID + " = " + Integer.toString(seed.getId());
-		database.update(TableSeed.TABLE_NAME, values, where, null);
-		dbHelper.close();
-		Log.d("Icon changed","Confirmed");*/
-        
+        if(seed != null) {
+        	seed.setImage(image.getAbsolutePath());
+        	SQLiteDatabase database = dbHelper.getWritableDatabase();
+     		ContentValues values = new ContentValues();
+     		values.put(TableSeed.COL_IMAGE,seed.getImage());
+     		String where = TableSeed.COL_ID + " = " + Integer.toString(seed.getId());
+     		database.update(TableSeed.TABLE_NAME, values, where, null);
+     		dbHelper.close();
+    		Log.d("Icon changed","Saved new Image to Seed Database");
+        } else {
+    		Log.d("Icon changed","Seed is null ERROR");
+        }        
 	}
 
 	public void flushChangesAndSave(Boolean changeState, Boolean unselect) {
@@ -896,12 +900,10 @@ public class FragmentEditJobPopup extends Fragment implements
 				SeedInfo.setTag(seed);
 				SeedInfo.setText(seed.getSeedinfo());	
 				imageSeedName = seed.getName();
-                Bitmap bitmap = null;
-				BitmapFactory.Options options = new BitmapFactory.Options();
-                if(image != null) {
-                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                	bitmap = BitmapFactory.decodeFile(image.getAbsolutePath(), options);
-                	changeCameraIcon(bitmap);
+				String imagePath = seed.getImage();
+				if(imagePath != null) {
+					image = new File(imagePath);
+                	changeCameraIcon();
                 }
 				
 			}
