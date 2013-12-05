@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -94,6 +95,7 @@ public class FragmentEditJobPopup extends Fragment implements
 	private ArrayAdapter<Seed> spinSeedAdapter = null;
 	private Spinner spinSeed;
 	private Button butNewSeed;
+	private View layout;
 
 	private ImageButton AddSubNote;
 	private List<Note> notes;
@@ -127,6 +129,9 @@ public class FragmentEditJobPopup extends Fragment implements
 	public void setImage(File image) {
 		this.image = image;
 	}
+	private Button replace;
+	private Button exit;
+	private AlertDialog imageD;
 	// Interface for receiving data
 	public interface EditJobListener {
 		
@@ -223,6 +228,7 @@ public class FragmentEditJobPopup extends Fragment implements
 				.findViewById(R.id.add_subnote);
 		AddSubNote.setOnClickListener(this);
 		list_notes= (LinearLayout) view.findViewById(R.id.list_notes);
+		
 		vi = (LayoutInflater) this.getActivity().getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		return view;
 		
@@ -464,57 +470,67 @@ public class FragmentEditJobPopup extends Fragment implements
 			notes.add(newNote);
 			Log.d("Subnote", "Button responds");
 		} else if (v.getId() == R.id.CameraButton) {
-                    Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                    //File file = new File(Environment.getExternalStorageDirectory()+ File.separator + "image.jpg");
-                    File imagesFolder = new File(File.separator +"sdcard"+File.separator +"OpenAtk Planting App Seed Photos");
-                    imagesFolder.mkdirs(); // <----
-                    if(imageSeedName == null) imageSeedName = "Null";
-                    Log.d("Camera Image naming","Image name="+ imageSeedName);
-                    image = new File(imagesFolder,imageSeedName + ".jpg");
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image));
-                    this.getActivity().startActivityForResult(intent, 100);                                      
-            //}
-            //if (pictureTaken == true) {// show picture
-                    
-                    
-            // AlertDialog.Builder alertadd = new
-            // AlertDialog.Builder(this.getActivity());
-            // LayoutInflater factory = LayoutInflater.from(this.getActivity());
-            // final View view = factory.inflate(R.layout.alert_dialog, null);
-            // alertadd.setView(view);
-            //
-            // alertadd.show();
-			} else if (v.getId() == R.id.CameraResult) {
-				loadPhoto(CameraResult, 100, 100);
-				
-            }	
+            takePhoto();
+            
+		} else if (v.getId() == R.id.CameraResult) {
+			loadPhoto(CameraResult, 100, 100);			
+        } 
 	}
-	 private void loadPhoto(ImageView imageView, int width, int height) {		 	
+
+	private void takePhoto(){
+		Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+        //File file = new File(Environment.getExternalStorageDirectory()+ File.separator + "image.jpg");
+        File imagesFolder = new File(File.separator +"sdcard"+File.separator +"OpenAtk Planting App Seed Photos");
+        imagesFolder.mkdirs(); // <----
+        if(imageSeedName == null) imageSeedName = "Null";
+        Log.d("Camera Image naming","Image name="+ imageSeedName);
+        image = new File(imagesFolder,imageSeedName + ".jpg");
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(image));
+        this.getActivity().startActivityForResult(intent, 100); 
+	}
+
+
+	private void loadPhoto(ImageView imageView, int width, int height) {		 	
 	        ImageView tempImageView = imageView;
 
 
-	        AlertDialog.Builder imageDialog = new AlertDialog.Builder(this.getActivity());
+	        AlertDialog.Builder imageDialog = new AlertDialog.Builder(this.getActivity())
+	        .setPositiveButton("Replace Current Seed Photo",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							takePhoto();
+						}
+					})
+			.setNegativeButton("Cancel",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							dialog.cancel();
+						}
+					});
+	        imageD = imageDialog.create();
+	        
 	        LayoutInflater inflater = (LayoutInflater) LayoutInflater.from(this.getActivity());
 
-	        View layout = inflater.inflate(R.layout.custom_fullimage_dialog,
-	                (ViewGroup) getActivity().findViewById(R.id.layout_root));
+	        layout = inflater.inflate(R.layout.custom_fullimage_dialog,(ViewGroup) getActivity().findViewById(R.id.layout_root));
 	        ImageView image = (ImageView) layout.findViewById(R.id.fullimage);
 	        image.setImageDrawable(tempImageView.getDrawable());
-	        imageDialog.setView(layout);
-
-
+	        imageDialog.setView(layout);	        
 	        imageDialog.create();
-	        imageDialog.show();     
+	        imageDialog.show(); 
+	        imageD.cancel();
 	    }
 	public void changeCameraIcon(){
 		Log.d("camera","icon changed" + image.getAbsolutePath());
 		Bitmap bitmap = BitmapFactory.decodeFile(image.getAbsolutePath());
-		int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
+		int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );		
 		Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
         this.CameraResult.setImageBitmap(scaled);
+		bitmap = null;
+		scaled = null;
         Log.d("Icon changed","Confirmed");
         if(seedObjectImage != null) {
-			CameraResult.setVisibility(View.VISIBLE);// Go back to
+			CameraResult.setVisibility(View.VISIBLE);
+			CameraButton.setVisibility(View.GONE);// Go back to
         	//seed.setImage(image.getAbsolutePath());
         	SQLiteDatabase database = dbHelper.getWritableDatabase();
      		ContentValues values = new ContentValues();
@@ -892,6 +908,7 @@ public class FragmentEditJobPopup extends Fragment implements
 			if(seed.getId() == -1) newSeed = ""; //"Select Seed" selected
 			currentJob.setSeedName(newSeed);
 			CameraResult.setVisibility(View.GONE);
+			CameraButton.setVisibility(View.VISIBLE);
 			if(seed.getId() > 0){
 				// Save this choice in preferences for next open
 				SharedPreferences prefs = PreferenceManager
@@ -912,6 +929,7 @@ public class FragmentEditJobPopup extends Fragment implements
 					image = new File(imagePath);
                 	changeCameraIcon();
                 	CameraResult.setVisibility(View.VISIBLE);
+                	CameraButton.setVisibility(View.GONE);
                 } else {
                 	Log.d("Spinner", "imagePath is null");
                 	CameraResult.setVisibility(View.GONE);
