@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -24,12 +25,14 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
@@ -37,6 +40,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -130,6 +134,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 	FragmentListView fragmentListView = null;
 	FragmentAddField fragmentAddField = null;
 	String addingBoundary = "";
+	
+	public int accTurnedoff = 0; //flag for if the program turned off the accelerometer
+	int orientation; //current rotation setting
 	
 	//Trello
     SyncController syncController;
@@ -978,12 +985,97 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 		mCurrentState = newState;
 		this.invalidateOptionsMenu();
 	}
+	private int getScreenOrientation() { //taken from http://stackoverflow.com/questions/10380989/
+										 //how-do-i-get-the-current-orientation-activityinfo-screen-orientation-of-an-a
+	    int rotation = getWindowManager().getDefaultDisplay().getRotation();
+	    DisplayMetrics dm = new DisplayMetrics();
+	    getWindowManager().getDefaultDisplay().getMetrics(dm);
+	    int width = dm.widthPixels;
+	    int height = dm.heightPixels;
+	    
+	    // if the device's natural orientation is portrait:
+	    if ((rotation == Surface.ROTATION_0
+	            || rotation == Surface.ROTATION_180) && height > width ||
+	        (rotation == Surface.ROTATION_90
+	            || rotation == Surface.ROTATION_270) && width > height) {
+	        switch(rotation) {
+	            case Surface.ROTATION_0:
+	                orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+	                break;
+	            case Surface.ROTATION_90:
+	                orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+	                break;
+	            case Surface.ROTATION_180:
+	                orientation =
+	                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+	                break;
+	            case Surface.ROTATION_270:
+	                orientation =
+	                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+	                break;
+	            default:
+	                orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+	                break;              
+	        }
+	    }
+	    // if the device's natural orientation is landscape or if the device
+	    // is square:
+	    else {
+	        switch(rotation) {
+	            case Surface.ROTATION_0:
+	                orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+	                break;
+	            case Surface.ROTATION_90:
+	                orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+	                break;
+	            case Surface.ROTATION_180:
+	                orientation =
+	                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+	                break;
+	            case Surface.ROTATION_270:
+	                orientation =
+	                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+	                break;
+	            default:
+	               // Log.e(TAG, "Unknown screen orientation. Defaulting to " +
+	               //         "landscape.");
+	                orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+	                break;              
+	        }
 
+	    }
+
+	    return orientation;
+	}
 	private Void showEdit(Boolean transition) {
 		if (editIsShowing == 0) {
 			hideAdd(false);
 			editIsShowing = 1;
 			// Set height back to wrap, in case add buttons or something
+			//int curOr = getResources().getConfiguration().orientation;
+			orientation = getScreenOrientation();
+	        Log.d("Screen rotation","is" + Integer.toString(orientation));
+			if  (android.provider.Settings.System.getInt(getContentResolver(),Settings.System.ACCELEROMETER_ROTATION, 1) == 1){
+	            android.provider.Settings.System.putInt(getContentResolver(),Settings.System.ACCELEROMETER_ROTATION, 0);
+	            //accTurnedoff = 1;
+	            Log.d("Accelerometer","turned off");
+	            if(orientation == 0) {
+	            	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+	            }
+	            else if(orientation == 1) {
+	            	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+	            }
+	            else if(orientation == 8) {
+	            	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+	            }
+	            else if(orientation == 9) {
+	            	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+	            }
+	            accTurnedoff = 1;
+			}
+			else{
+	            Log.d("Accelerometer","left alone");
+			}
 			FrameLayout layout = (FrameLayout) findViewById(R.id.fragment_container_edit_job);
 			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout
 					.getLayoutParams();
@@ -1021,6 +1113,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener,
 			ft.remove(fragment);
 			ft.commit();
 			fragmentEditField = null;
+			if(accTurnedoff == 1){
+				accTurnedoff = 0;
+				android.provider.Settings.System.putInt(getContentResolver(),Settings.System.ACCELEROMETER_ROTATION, 1);
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+	            Log.d("Accelerometer","turned back on");
+			}
 		}
 	}
 
