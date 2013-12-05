@@ -522,8 +522,8 @@ public class FragmentEditJobPopup extends Fragment implements
 	public void changeCameraIcon(){
 		Log.d("camera","icon changed" + image.getAbsolutePath());
 		Bitmap bitmap = BitmapFactory.decodeFile(image.getAbsolutePath());
-		int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );		
-		Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
+		int nh = (int) ( bitmap.getHeight() * (1024.0 / bitmap.getWidth()) );		
+		Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 1024, nh, true);
         this.CameraResult.setImageBitmap(scaled);
 		bitmap = null;
 		scaled = null;
